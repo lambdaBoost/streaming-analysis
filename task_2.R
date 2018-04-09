@@ -38,6 +38,10 @@ table(df[,1])
 #check for missing values (there are none)
 sum(complete.cases(df))==nrow(df)
 
+#check there are equal number of heroes present in each team (hero values for all rows should sum to zero)
+sum((rowSums(df[5:ncol(df)]))) == 0
+
+
 #convert to factors
 #####
 df[sapply(df, is.numeric)] <- lapply(df[sapply(df, is.numeric)], as.factor)
@@ -56,6 +60,7 @@ for ( i in c(1:length(hero_names$heroes))){
 #drop this column - it has the same value for every entry - must be a mandatory character
 df <- df%>%
   select(-c(lina, cluster_id , game_mode , game_type))
+ # select(-c(lina))
 
 #make training and tst sets
 #####
