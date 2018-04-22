@@ -76,16 +76,17 @@ make_tdm <- function(text_column,minfreq=1){
   return(list(corpus=corpus,freq_table=d,tdm=tdm , dtm=dtm))
 }
 
-
+#make corpuses and tdms from the tweets
 all_tweets <- make_tdm(df$text)
 remain <- make_tdm(remain_tweets$text)
 leave <- make_tdm(leave_tweets$text)
 
+#function to make wordclouds
 make_wordcloud <- function(freq_tab){
 wordcloud(words = freq_tab$word, freq = freq_tab$freq, min.freq = 5,max.words=2000, random.order=FALSE, rot.per=0.2,colors=brewer.pal(8, "Dark2"))
 }
 
-#make wordclouds
+#make wordclouds from the frequency tables
 make_wordcloud(remain$freq_tab)
 make_wordcloud(leave$freq_tab)
 
@@ -127,7 +128,7 @@ ncol(as.matrix(dtm))
 #top_terms <- findFreqTerms(all_tweets$tdm,min_term_freq)
 #X_input <- dtm[,top_terms]
 
-#create a container and split into train / test set (40/60 split for now)
+#create a container and split into train / test set (70/30 split for now)
 container <- create_container(dtm, as.numeric(factor(df$label)),trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=FALSE)
 
 #train some models and se what we get

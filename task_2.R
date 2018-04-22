@@ -67,7 +67,7 @@ df <- df%>%
 set.seed(57)
 
 # Simple into train test and validation sets
-index <- sample(c(1:3), size = nrow(df), replace = TRUE, prob = c(.8, .2, .2))
+index <- sample(c(1:3), size = nrow(df), replace = TRUE, prob = c(.6, .2, .2))
 df_train <- df[index == 1,]
 df_test <- df[index == 2,]
 df_valid <- df[index == 3,]
