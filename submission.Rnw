@@ -377,8 +377,8 @@ In order to analyse the text, a corpus will be built. This will be achieved thro
   \item convert the encoding to UTF-8
   \item convert all text to lowercase - the case doesn't give us any extra information.
   \item remove punctuation, numbers and URLs
-  \item remove the following common words, none of which convey any real informatiom: "RT","rt","EU","eu","brexit"
-  \item remove words CONTAINING the following terms (these are often used in conjunction with a hashtag): 'vote', 'leave', 'remain', 'stronger'.
+  \item remove the following common words, none of which convey any real informatiom: "RT","rt","EU","eu","brexit","euref"
+  \item remove words CONTAINING the following terms (these are often used in conjunction with a hashtag): 'vote', 'leave', 'remain', 'stronger'.'referendum'.
   \item remove all standard English stopwords
   \item strip out any whitespace.
 \end{itemize}
@@ -404,9 +404,9 @@ buildCorpus <- function(someText){
   myCorpus <- tm_map(myCorpus, removeURL)
   myCorpus <- tm_map(myCorpus, content_transformer(removeURL)) #??
   # add stopwords
-  myStopwords <- c(stopwords("english"), "RT","rt","EU","eu","brexit")
+  myStopwords <- c(stopwords("english"), "RT","rt","EU","eu","brexit","euref")
   #remove words CONTAINING certain terms
-  myCorpus <- tm_map(myCorpus, content_transformer(gsub), pattern = "*vote*|*leave*|*remain*|*stronger*", replacement = "")
+  myCorpus <- tm_map(myCorpus, content_transformer(gsub), pattern = "*vote*|*leave*|*remain*|*stronger*|*referendum*", replacement = "")
   # remove stopwords from corpus
   myCorpus <- tm_map(myCorpus, removeWords, myStopwords)
   #
@@ -489,10 +489,10 @@ plot_wordcount <- function(freq_tab,title_text){
 a<-plot_wordcount(all_tweets$freq_table,"most common words for all tweets")
 b<-plot_wordcount(remain$freq_table,"most common words for remain tweets")
 c<-plot_wordcount(leave$freq_table,"most common words for leave tweets")
-
-
-
 @
+The most common word for leave tweeters was 'June', suggesting many of them were focused on reinforcing the timing of the referendum - ensuring people remembered to go out and vote. 'via', 'spread' and 'word' were also common, suggesting attempts to get readers to spread the message. The general theme of many of the common words for leave tweets is of trying to increase virality and therefore increase re-tweets.\\
+The most common word for remain tweeters was 'say', followed by 'stay', 'will' and 'bori[s]'. These give less of an impression of a common theme compared to the leave tweets. It is not surprising that 'Boris' is mentioned a lot by the remain tweeters since he proved to be a particularly divisive figure during the campaigning. However, the lack of common theme for leave tweets may point to an overall less coordinated campaign and may have been a contributary factor to the final result of the referendum (this is just conjecture however - it must be stressed that the dataset forms a small minority of all tweets from the campaign period).\\
+As a humorous aside 'brexitthemovi[e]' was in the top 20 most common words. I don't remember this term from the campaign period but it is interesting to see such a specific term become so popular.
 
 \begin{figure}[H]
 \begin{center}
@@ -504,15 +504,58 @@ grid.arrange(a,b,c, nrow = 3)
 \end {center}
 \end {figure}
 
-\subsection{Text Analysis}
+Plotting word associations gives an impression of word usage and gives more insight into common themes between tweets for each class. This is achieved using the build in plotting function for the term-document matrix.\\
+For remain tweets, non of the associations are particularly strong when compared to the leave tweets. Of the associations that are present, many seem to convey a negative message such as 'people don't like', or 'don't know'. There doesn't seem to be much evidence of a branded campaign or attempts to spread the message to a wider population.
 
-Record, explain and justify your appraoch.Complete this part as required by the coursework sheet. Again, be clear, visuals always helps in communicating results. Justify your choices and explain your methods. 
+\begin{figure}[H]
+\begin{center}
+<<fig=TRUE>>=
+plot(remain$tdm, term = findFreqTerms(remain$tdm, lowfreq = 10), corThreshold = 0.1,
+     weighting = T, main="word association for remain tweets")
+@
+\caption {Word association for remain tweets}
+\label{fig12}
+\end {center}
+\end {figure}
 
+The leave tweets on the other hand show some strongly associated words. As suspected previously 'spread', 'word' and 'via' are strongly associated. This suggests a coordinated effort to increase virality of these tweets and make them more visible. 
+'Take back control' is another strong grouping. This is a strong and positivley phrased phrase  which would be likely to grab and hold readers' attention (whether we agree with it or not). This contrasts with the negative phrases from the remain tweets which, rather than focusing on why readers should vote remain, seemed more to focus on why readers should \emph{not} vote leave.
+Finally 'Cameron', 'Send' and 'Speech' were strongly associated. The reason for this is a little more difficult to ascertain but may relate to one of Cameron's campaign speeches or debates which generally proved to be divisive at the time.
+\begin{figure}[H]
+\begin{center}
+<<fig=TRUE>>=
+plot(leave$tdm, term = findFreqTerms(leave$tdm, lowfreq = 15), corThreshold = 0.1,
+     weighting = T, main="word association for leave tweets")
+@
+\caption {Word association for leave tweets}
+\label{fig12}
+\end {center}
+\end {figure}
 
 
 \subsection{Text Classification}
+Most of the preprocessing for text classification is performed within the functions defined earlier. First we create a document-term matrix from all the tweets. We only consider words with a minimum frequency of 10. 
 
+<<>>=
+#transpose the dtm to get word count for each tweet
+dtm<-make_tdm(df$text,10)
+dtm<-dtm$dtm
 
+#checknumber of columns used for model
+ncol(as.matrix(dtm))
+@
+Using the RTextTools package, the tweets are saved in a container-type object. This automatically performs a train-test split. In this case the training set forms 70\% of the data:
+<<>>=
+container <- create_container(dtm, as.numeric(factor(df$label)),trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=FALSE)
+
+@
+A number of classification models are trained on the data, and evaluated on the test set. RTextTools automatically creates results and analytics objects which we can use to evaluate model performance:
+<<>>=
+#train some models and se what we get
+models <- train_models(container,algorithms=c("SVM","TREE","BAGGING","BOOSTING","RF"))
+results <- classify_models(container, models) #can use for conf matrix
+analytics <- create_analytics(container, results)
+@
 
 
 \section{Reproducing Results}
