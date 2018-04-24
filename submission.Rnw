@@ -403,7 +403,7 @@ remain_tweets <- df%>%
 #check we have captured all the tweets
 nrow(df)==(nrow(leave_tweets) + nrow(remain_tweets))
 @
-It is important to ensure the dataset is balanced, ie there are a similar number of leave and remain tweets. This is indeed the case:
+It is important to ensure the dataset is balanced, ie there are a similar number of leave and remain tweets. There are more leave tweets than remain ones, but the difference isn't too great:
 <<>>=
 nrow(leave_tweets)
 nrow(remain_tweets)
@@ -517,7 +517,7 @@ make_wordcloud(leave$freq_tab)
 
 In addition to wordclouds, we can plot the most common words for each class of tweet. This is achieve with the function below:
 <<>>=
-#function to plot wordclouds
+#function to plot wordcounts
 plot_wordcount <- function(freq_tab,title_text){
   ggplot(head(freq_tab,20), aes(x=word,y=freq))+
     geom_bar(stat="identity")+
@@ -584,16 +584,44 @@ ncol(as.matrix(dtm))
 @
 Using the RTextTools package, the tweets are saved in a container-type object. This automatically performs a train-test split. In this case the training set forms 70\% of the data:
 <<>>=
-container <- create_container(dtm, as.numeric(factor(df$label)),trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=FALSE)
+container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
 
 @
 A number of classification models are trained on the data, and evaluated on the test set. RTextTools automatically creates results and analytics objects which we can use to evaluate model performance:
 <<>>=
-#train some models and se what we get
-models <- train_models(container,algorithms=c("SVM","TREE","BAGGING","BOOSTING","RF"))
+#train some models and analyse the results
+models <- train_models(container,algorithms=c("SVM","BAGGING","BOOSTING","RF"))
 results <- classify_models(container, models) #can use for conf matrix
-analytics <- create_analytics(container, results)
+#analytics <- create_analytics(container, results)
 @
+Looking at confusion matrices for each of the model types we get the following:
+<<>>=
+print("SVM")
+table(predicted=results$SVM_LABEL,actual=container@testing_codes)
+print("Bagging")
+table(predicted=results$BAGGING_LABEL,actual=container@testing_codes)
+print("Boosting")
+table(predicted=results$LOGITBOOST_LABEL,actual=container@testing_codes)
+print("Random Forest")
+table(predicted=results$FORESTS_LABEL,actual=container@testing_codes)
+@
+None of these are particularly impressive. Let's take the model with the highest accuracy (the SVM) and tune the hyperparameters. The minimum term frequency is also reduced to incorporate more features into the model training.:
+<<>>=
+dtm<-make_tdm(df$text,2)
+dtm<-dtm$dtm
+
+container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
+
+library(e1071)
+tuned_svm <- tune.svm(x=container@training_matrix, y=container@training_codes, 
+                      validation.x = container@classification_matrix, validation.y=container@testing_codes,
+                      gamma=10^(-6:0) , cost=10^(-1:3))
+
+print('model accuracy = ' )
+1-tuned_svm$best.performance
+@
+
+
 
 
 \section{Reproducing Results}
