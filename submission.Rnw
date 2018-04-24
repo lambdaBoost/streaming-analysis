@@ -69,19 +69,29 @@ The paper that was chosen for this work is \cite{6779381}. The authors provided 
 
 \textcolor{blue}{\textit{Notice how I cited the paper, and how does it appear in the document, to do so, you need to have a file in your working director (references.bib), this file simply contains the bibtext items for the papers you chose. These BibTex items are often avaiable to download from publishers website, see Figure~\ref{fig1}}}
 \subsection{Problem Statement}
-What is this paper about? your text goes here, your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here
+
+The methods presented in the reviewed paper attempt to address the growing issue of traffic analysis for messaging apps on mobile devices. Mobile and internet providers require the capability to classify traffic in order to tailor services to users and to manage load on the network. However, the rise of end to end encryption makes classification of traffic an increasingly difficult problem. It is possible to first segment and then classify encrypted traffic, however past attempts were relativley slow due to a lengthy feature extraction process. They were also intensive with respect to storage and memory due to the need to store raw packet data. The variable length of packets also affected classification accuracy. By running the clustering and classification of actual data in a streaming manner and iterativley select features from offline training data, this study sought to both decrease runtime and increase accuracy.
 
 \subsection{Relevant Work}
-[your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here]
-\subsection{Methods}
-[your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here]
+The paper acknowleges previous studies \emph{Haffner2005} \emph{Raahemi2008}  \emph{Zander2005} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \emph{Huanhuan2005} \emph{Fu2016}, including one by the same team \emph{Fu2016}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
+
+
+
+\subsection{Methodology}
+Thw raw data used consisted of raw packets of traffic data from facebook, Whatsapp and Wechat, with the objective being to classify the usage activity (audio, location, text etc) of the data at a given point in time. The model used incorporated both offline and online (streaming) elements, with training performed offline and clustering/classification of real-world data performed in a streaming manner. The offline segment involved training up a random forest classifier with usage activity as the dependant variable. Pre-collected and labelled messaging traffic was used to train the random forest after feature extraction which involved extracting features. The data was then split into time windows and a feature selection stage used to determine the best features for clasification. The individual time windows, across the selected features, were then used to train the random forest classifier. The optimal features were also stored for use in the online stage.
+
+The streaming stage involved streaming raw packets and extracting the optimal features (as defined offline). The data was then split into time windows which were segmented in a streaming manner using a custom implementation of KMeans clustering, referred to as recursive Constrained KMeans Clustering (rCKC). This recursivley splits clusters based on the derived property \textit{Maximal Inner Activity Similarity (IAS)}. Clusters of similar traffic are expected to have low IAS values. The individual traffic segments (note, each segment represents similar traffic) are then passed into the pre-trained random forest classifier to determine the usage activity.
+
+
 \subsection{Results}
-[your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here]
+To evaluate model effectiveness, the offline portion of the model was first conmpared to other baseline models; followed by a comparison of the full streaming model (pre-trained offline) against previous approaches. The Hierachical Random Forest classifier (HRF) was assessed using two accuracy metrics: Total Duration Accuracy (TDA) and Total Volume Accuracy (TVA). Both accuracy metrics are higher for the proposed HRF classifier across all three messaging services. 
+The entire model, including the streaming section, was then tested against a number of baseline models. The TDA and TVA for the model were higher than any of the other baseline models.Along with higher accuracy, the new model exhibited a greatly reduced runtime compared to the baseline models, with a 14.3x speedup compared to the next most accurate model. 
+
 \subsection{Conclusion}
+The model presented was able to classify encrypted messaging traffic with a higher accuracy than any of the previously tested models. By streaming the testing stage, and pre-seleting the most important features, classification speed was greatly increased. This increases the viability of the model for real-world applications where real-time analysis of large volumes of messaging data is a requirement.
+For the offline classifier, it should be noted that the result does not appear to be statistically significant from the basline models given the figures provides as the confidence intervals are seen to overlap. The authors do not state the confidence level used so it is not possible to infer the true significance of the result. Likewise,  it is stated that the result for the stream classifier was 'significantly' higher but it is unclear whether the authors are inferring statistical significance as there is no mention of repeatability and no confidence intervals are shown on the overall results plot.
 
-[your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here your text goes here]
-
-
+-TODO citations
 
 
 \section {Data Streams}
@@ -214,50 +224,6 @@ df <- df%>%
 
 
 
-The good thing about the above approach is you can always refer to the table in your document. For example 'As can be seen in Table~\ref{tab1},...'
-
-\textbf{Figures:} are important part of your analysis, and also good way to give insight about the dataset you are working with. You will use packages like \textit{ggplot2} to produce some visuals. Lets start with a simple example to show how to present your visuals in the report with proper labels and captions. Remember, I need to see the code the produced the figure as well. \\
-
-Suppose, I just want to create a plot that shows the relation between Petal width and length and map the colour and shape to the Species (class label in my dataset). \\
-
-First, I will write my code, but notice that my chunk definition is set as follows\\ \textit{(<<warning=FALSE,message=FALSE,eval=FALSE>>=)}, I set warning and message to FALSE, because I don't want these warnings/ messages to appear in my final output. 
-
-
-<<warning=FALSE,message=FALSE,eval=FALSE>>=
-library(ggplot2)
-
-p <- ggplot(iris, aes(x=Petal.Length, 
-                      y = Petal.Width,color=Species) )
-p <- p+ geom_point(aes(shape=Species))
-p <- p + xlab('Petal Length')
-p <- p + ylab('Petal Width')
-p <- p + theme_bw()
-p
-
-@
-
-Make sure that your code is running, and once everything is OK, then you need to insert the above code within a Latex code used to insert images (check the .rnw file to see how we achieved this). Again, remember the caption and the label which allows you to refer to this figure from anywhere in your document (Figure~\ref{fig1}). Notice the header of the chunk code in the \textit{.rnw} file. 
-
-\begin{figure}[H]
-\begin{center}
-
-<<warning=FALSE,echo=FALSE,fig.height=4.5,out.width=".76\\linewidth">>=
-library(ggplot2)
-
-p <- ggplot(iris, aes(x=Petal.Length, 
-                      y = Petal.Width,color=Species) )
-p <- p+ geom_point(aes(shape=Species))
-p <- p + xlab('Petal Length')
-p <- p + ylab('Petal Width')
-p <- p + theme_bw()
-p
-
-@
-\caption {Petal Length /Width per species in IRIS set}
-\label{fig1}
-\end {center}
-\end {figure}
-
 \subsection{Build Classifier}
 The dataset is now split into training, testing and validation sets. 60\% of the data is used for training with 20\% used for testing and validation respectivley:
 <<>>=
@@ -321,13 +287,85 @@ best_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=n
 predictions <- predict(temp_model , df_valid)
 confusionMatrix(predictions,df_valid$won)
 @
-
+TODO - discuss the results
+    - variable importances
+    -data diagram
+  
 
 \subsection{Build Stream Classifier}
 
-Same as above. Complete this part as required by the coursework sheet. Again, be clear, visuals always helps in communicating results. Justify your choices and explain your methods. 
+The classifier in the previous section required over two hours of runtime for a full parameter tuning run. It may be possible to achieve a similar accuracy with just a subset of the original dataset. To ascertain whether this is the case, a streaming classifier was produced which incrementaly trains and tests a model on chunks of the dataset. This also has the advantage of preventing memory overflow since the whole dataset need not be saved in memory.
+
+First the required libraries are loaded:
+<<>>=
+library(data.table)
+library(RMOA)
+library(stream)
+@
+
+A validation set will not be used in this case since the aim is to demonstrate a streaming classifier; parameter tuning was demonstrated in the above section. So, the validation and testing set from the above section are combined to create a new testing set. The stream classifier will therefore be trained on 60\% of the original dataset:
+<<>>=
+df_test <- bind_rows(df_test,df_valid)
+
+@
+Several classifier types were tried but that which gave the quickest improvement in accuracy was the 'Ozaboost' classifier. This is a boosted model created specifically for streaming. A Hoeffding tree is used as the base learner.
+<<>>=
+mymodel <- OzaBoost(baseLearner="trees.HoeffdingTree", ensemblesize=30)
+@
+A stream object is created to pass the data incrementally to the model. It was decided to stream data in chunks of 100 instances. For the training set of ~60000 rows, this will give ~600 chunks overall. The dataset has over 100 dimensions so 100 rows should contain enough data for the model to meaningfully update itself on every iteration.
+<<>>=
+# Create a stream 
+dfStream <-datastream_dataframe(data=as.data.table(df_train))
+# other variables for training
+chunk <- 100
+#use the chunk size and size of the training set to define the number of turns required for training
+turns <- (nrow(dfStream$data)/chunk)-1
+turns <- floor(turns)
+@
+We make a similar stream object for the testing data. This will allow for testing concurrent to training ie, the model will be tested after every training iteration. This will allow for early stopping if a desired accuracy is reached before the full dataset has been used for training.\\
+Note, the size of the testing chunks is defined by taking the size of the training chunks and scaling it down in proportion to the test/training set size. This ensures there are an equal number of training and testing chunks, so testing can be carried out after every training iteration.
+<<>>=
+#make a test stream
+test_stream <- datastream_dataframe(data=as.data.table(df_test))
+# other variables for testing
+test_chunk <- floor(100 / (nrow(df_train)/nrow(df_test)))
+@
+Training is performed on a single chunk of data. This is achieved by retrieving a chunk from the stream object. The chunk is then used as training data for the model defined above:
+<<>>=
+## first sample (train) - retrieves first 100 records ##
+set.seed(57)
+sample <- dfStream$get_points(dfStream, n = chunk,
+                              outofpoints = c("stop", "warn", "ignore"))
 
 
+
+## Train the first chunk
+
+myboostedclassifier <- trainMOA(model = mymodel,
+                                formula = won ~.,
+                                data = datastream_dataframe(sample))
+@
+A single chunk of test data is also taken to be used for testing on this initial training iteration:
+<<>>=
+test_sample <- test_stream$get_points(test_stream, n = test_chunk,
+                                      outofpoints = c("stop", "warn", "ignore"))
+@
+The test sample is used to evaluate the accuracy of the initial training run. It is as good as random guessing, so unsurprisingly more data will be required to build a useful classifier:
+<<>>=
+## Do some prediction to test the model
+predictions <- predict(myboostedclassifier, test_sample)
+table(sprintf("Actuals: %s", test_sample$won),
+      sprintf("Predicted: %s", predictions))
+# calculate accuracy
+cat("Accuracy is: ", sum(predictions==test_sample$won)/nrow(test_sample)*100,"%")
+@
+The results for each training/testing iteration will be held in a vector for later analysis:
+<<>>=
+# hold results in a vector
+accuracies <- c()
+#reset the test stream 
+test_stream$reset()
+@
 
 
 \section {Text Classification}

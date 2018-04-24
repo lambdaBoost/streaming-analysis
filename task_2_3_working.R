@@ -24,19 +24,18 @@ mymodel <- OzaBoost(baseLearner="trees.HoeffdingTree", ensemblesize=30)
 
 # Create a stream 
 dfStream <-datastream_dataframe(data=as.data.table(df_train))
-# define some variables to be used in the loop
+# other variables for training
 chunk <- 100
+#use the chunk size and size of the training set to define the number of turns required for training
 turns <- (nrow(dfStream$data)/chunk)-1
 turns <- floor(turns)
-position <- chunk
+
 
 #make a test stream
 test_stream <- datastream_dataframe(data=as.data.table(df_test))
-# define some variables to be used in the loop
+# other variables for testing
 test_chunk <- floor(100 / (nrow(df_train)/nrow(df_test)))
-#turns <- (nrow(test_stream$data)/chunk)-1
-#turns <- floor(turns)
-test_position <- test_chunk
+
 
 test_sample <- test_stream$get_points(test_stream, n = test_chunk,
                                       outofpoints = c("stop", "warn", "ignore"))
@@ -84,7 +83,9 @@ for (i in 1:turns){
   predictions <- predict(myboostedclassifier, test_sample)
   # calculate accuracy
   accuracies[i] <- sum(predictions==test_sample$won)/nrow(test_sample)*100
-  cat(accuracies[i],"%","\n")
+  if(i %% 100 = 0){
+  cat("chunk ",i," accuracy = ",accuracies[i],"%","\n")
+  }
 }
 
 
