@@ -112,6 +112,7 @@ The dataset itself contains data from 102944 individual games. The dependant var
 Other independant variables are present in the form of game type, game mode and geographic data; but these were excluded for the final analysis as this study focuses solely on game balancing through choice of hero.\\
 
 To study the dataset in more detail, let's load it into the workspace, along with the required libraries. The original dataset, as downloaded, is already split into a training and testing set. However, in order to ensure the split as indeed random and stratified, the data was re-combined into a single dataset.
+\hspace{1cm} 
 
 \begin{Schunk}
 \begin{Sinput}
@@ -132,6 +133,8 @@ To study the dataset in more detail, let's load it into the workspace, along wit
 \end{Sinput}
 \end{Schunk}
 
+\hspace{1cm} 
+
 Looking at the basic structure of the data we note the following (outputs not shown in pdf due to size):
  
 \begin{itemize}
@@ -139,6 +142,7 @@ Looking at the basic structure of the data we note the following (outputs not sh
   \item The dataset is quite sparse
   \item The columns are not named. They are defined in the readme for the dataset so we will add names later
 \end{itemize}
+\hspace{1cm} 
 
 \begin{Schunk}
 \begin{Sinput}
@@ -158,15 +162,18 @@ Let's also check the size of the dataset:
 [1] "number of columns = 117 . number of rows = 102942"
 \end{Soutput}
 \end{Schunk}
-
+\hspace{1cm} 
 Now let's check the class distribution (ie do we have an approximately equal number of team 1 wins as team 2 wins?).
 The distribution is indeed close to equal so we do not need to worry about class imbalance later on. It is interesting to note there is some imbalance, the reason for this is not clear but probably has something to do with the manner in which the data was collected.
+
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #check value distribution of response variable column
 > table(df[,1])
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
 % Sun Apr 22 18:14:40 2018
@@ -183,6 +190,7 @@ The distribution is indeed close to equal so we do not need to worry about class
 \end{table}
 
 An advantage of this dataset is there are no missing values. This is not surprising as the data was captured using the Dota 2 API. Here we also check that each team has an equal number of heroes which is a requirement for a game:
+\hspace{1cm} 
 
 \begin{Schunk}
 \begin{Sinput}
@@ -193,23 +201,30 @@ An advantage of this dataset is there are no missing values. This is not surpris
 [1] TRUE
 \end{Soutput}
 \begin{Sinput}
-> #check there are equal number of heroes present in each team (hero values for all rows should sum to zero)
+> #check there are equal number of heroes present in each team (hero values for all rows
+># should sum to zero)
 > sum((rowSums(df[5:ncol(df)]))) == 0
 \end{Sinput}
 \begin{Soutput}
 [1] TRUE
 \end{Soutput}
 \end{Schunk}
+\hspace{1cm} 
 
 As discussed above, some preprocessing is required. First, we convert all numeric columns to factors:
+
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > df[sapply(df, is.numeric)] <- lapply(df[sapply(df, is.numeric)], as.factor)
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
 The column names are added in two stages. The first four columns are named manually as specified in the dataset description.\\
 The remaining columns represent the individual heros. The column names are extracted from the .json file supplied with the dataset:
+
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #add column names to the first few columns
@@ -222,10 +237,13 @@ The remaining columns represent the individual heros. The column names are extra
 + }
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
 
 Here we drop columns that are not related to heros (this analysis is concerned only with hero choice so we drop game type and location related columns). 
 One column has the same value for every entry. This was noticed during the analysis stage. The column represents a mandatory hero which muct be included in the team. Since it conveys no information it is dropped:
+
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #drop unwanted columns
@@ -233,10 +251,12 @@ One column has the same value for every entry. This was noticed during the analy
 +   select(-c(lina, cluster_id , game_mode , game_type))
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
 
 To visualise the dataset a little more clearly, the number of times each hero was picked by a team can be plotted. This gives us an idea of how popular each hero is, and may explain any particularly important variables later on. It also gives us a good indication of the general 'spread' of the data and whether the 'home' and 'away' teams tend to behave similarly. We require similar behaviour between the teams to ensure there is no bias in the results:
 
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 >#check variable balancing
@@ -274,7 +294,7 @@ To visualise the dataset a little more clearly, the number of times each hero wa
 +  ylab("number of games the hero was picked")
 \end{Sinput}
 \end{Schunk}
-
+\hspace{1cm} 
 
 \begin{figure}[H]
 \begin{center}
@@ -292,7 +312,7 @@ To visualise the dataset a little more clearly, the number of times each hero wa
 \end {center}
 \end {figure}
 
-Inspecting the two plots above, there are two noteable features in the dataset:
+Inspecting Figures \ref{home} and \ref{away}, there are two noteable features in the dataset:
 
 \begin{itemize}
 \item Some heros are extremely popular while others are barely used. The most popular heros will be considered when studying variable importance, since a high variable importance corresponding with a commonly used hero doesn't tell us much about underlying trends in the data.
@@ -301,6 +321,8 @@ Inspecting the two plots above, there are two noteable features in the dataset:
 
 \subsection{Build Classifier}
 The dataset is now split into training, testing and validation sets. 60\% of the data is used for training with 20\% used for testing and validation respectivley:
+
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > set.seed(57)
@@ -311,6 +333,7 @@ The dataset is now split into training, testing and validation sets. 60\% of the
 > df_valid <- df[index == 3,]
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
 A random forest classifier was used to classify the data. This model was chosen for two main reasons:
 \begin{itemize}
@@ -322,21 +345,25 @@ A random forest classifier was used to classify the data. This model was chosen 
 Rather than simply training up and testing a single model, some parameter tuning was carried out. The mtry and nodesize parameters were tuned using a tuning grid. Although this gave only 9 different combinations of hyperparameters, it serves as a demonstration of how model selection is achieved.
 
 Here, a parameter grid is defined and stored as a dataframe to be accessed as each candidate model is trained
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > num_attributes <- ncol(df_train)
 > #build a parameter grid
 > # Random forest
-> mtry <- as.integer(c(num_attributes * 0.25, num_attributes / 3, num_attributes * 0.5, num_attributes * 0.8))
+> mtry <- as.integer(c(num_attributes * 0.25,
++	 num_attributes / 3, num_attributes * 0.5, num_attributes * 0.8))
 > nodesize <- c( 3, 5, 20)
 > ntree <- c(200)
 > PG<- as.data.frame(expand.grid(mtry=mtry, nodesize=nodesize,
 +                                          ntree=ntree, stringsAsFactors=F))
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 Now, we train up a random forest on the training set for each combination of parameters in the parameter grid. \\
 For each combination of parameters, the resulting model is tested on the evaluation set and the accuracy calculated.
 The resulting accuracy from each parameter combination is saved in the 'Accuracy' column of the parameter grid table \textit{full output not shown here for brevity}:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 >set.seed(57)
@@ -345,7 +372,8 @@ The resulting accuracy from each parameter combination is saved in the 'Accuracy
 +   nodesize <- PG[i, "nodesize"]
 +   ntree <- PG[i, "ntree"]
 + 
-+   temp_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=ntree, nodesize=nodesize)
++   temp_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=ntree,
++	 nodesize=nodesize)
 +   predictions <- predict(temp_model , df_valid)
 +   cm<- confusionMatrix(predictions,df_valid$won)
 +   accuracy <- cm$overall['Accuracy']
@@ -355,8 +383,10 @@ The resulting accuracy from each parameter combination is saved in the 'Accuracy
 \end{Sinput}
 
 \end{Schunk}
+\hspace{1cm} 
 
 The parameters which produced the best model are selected and that model is evaluated on the testing set to give a final accuracy for the random forest classifier.
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #assess best model on test set
@@ -371,6 +401,7 @@ The parameters which produced the best model are selected and that model is eval
 > confusionMatrix(predictions,df_valid$won)
 \end{Sinput}
 \begin{Soutput}
+
 Confusion Matrix and Statistics
 
           Reference
@@ -398,10 +429,11 @@ Prediction   -1    1
        'Positive' Class : -1              
 \end{Soutput}
 \end{Schunk}
+\hspace{1cm} 
 
 The final accuracy of \textbf{56.7\%} is a reasonable result since an ideal game should be completely unpredictable (ie accuracy=50\%). Of course, repeatibility is a concern - this result could simply have occurred due to chance. The next section does address this by demonstrating a classifier which continually improves as more data is added.\\
 
-The ROC curve for the predictions is plotted below, with an \textbf{AUC of 0.579}. Again, this is far from a perfect classifier but does suggest some bias in the game which could potentially be exploited by a sufficiently well-trained AI:
+The ROC curve for the predictions is plotted in Figure \ref{fig02}, with an \textbf{AUC of 0.579}. Again, this is far from a perfect classifier but does suggest some bias in the game which could potentially be exploited by a sufficiently well-trained AI:
 
 
 \begin{figure}[H]
@@ -414,7 +446,7 @@ The ROC curve for the predictions is plotted below, with an \textbf{AUC of 0.579
 
 
 The variable importances are also of interest. In this case, each variable represents whether a particular character was used by the team, or the opposing team. So, plotting the importance of each character gives insights into any exploits that could be used to beat a team (ie by selecting or not selecting that hero). The realtive importances of the top 2 most important heroes are plotted below:
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 >#save variable importances
@@ -433,6 +465,7 @@ The variable importances are also of interest. In this case, each variable repre
 
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
 \begin{figure}[H]
 \begin{center}
@@ -444,7 +477,7 @@ The variable importances are also of interest. In this case, each variable repre
 
 The variable importances give an interesting insight into how the model predicted a win/no win for the home team. Relative importance is not equal for all heroes - it declines steadily for the top 20. However, one hero in particular - 'enchantress', is dominant. Whether a team selects this hero or not has more than double the relative bearing on the final result than any other hero choice. Given additional time and resources it may be possible to learn more about any possible exploits that could be derived from this information. Presumably this hero performs disproportionately well or poorly against other specific heros and further analysis may be able to reveal why this is so.\\
 
-It should also be noted that the 'enchantress' hero was not particularly popular or unpopular (\ref{home}), which further suggests this hero is of high importance.
+It should also be noted that the 'enchantress' hero was not particularly popular or unpopular (Figure \ref{home}), which further suggests this hero is of high importance.
 
 
   
@@ -454,6 +487,7 @@ It should also be noted that the 'enchantress' hero was not particularly popular
 The classifier in the previous section required over two hours of runtime for a full parameter tuning run. It may be possible to achieve a similar accuracy with just a subset of the original dataset. To ascertain whether this is the case, a streaming classifier was produced which incrementaly trains and tests a model on chunks of the dataset. This also has the advantage of preventing memory overflow since the whole dataset need not be saved in memory.
 
 First the required libraries are loaded:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > library(data.table)
@@ -461,21 +495,27 @@ First the required libraries are loaded:
 > library(stream)
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
 A validation set will not be used in this case since the aim is to demonstrate a streaming classifier; parameter tuning was demonstrated in the above section. So, the validation and testing set from the above section are combined to create a new testing set. The stream classifier will therefore be trained on 60\% of the original dataset:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > df_test <- bind_rows(df_test,df_valid)
 > 
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 Several classifier types were tried but that which gave the quickest improvement in accuracy was the 'Ozaboost' classifier. This is a boosted model created specifically for streaming \cite{6934280}. A Hoeffding tree is used as the base learner.
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > mymodel <- OzaBoost(baseLearner="trees.HoeffdingTree", ensemblesize=30)
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 A stream object is created to pass the data incrementally to the model. It was decided to stream data in chunks of 100 instances. For the training set of ~60000 rows, this will give ~600 chunks overall. The dataset has over 100 dimensions so 100 rows should contain enough data for the model to meaningfully update itself on every iteration.
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > # Create a stream 
@@ -487,8 +527,10 @@ A stream object is created to pass the data incrementally to the model. It was d
 > turns <- floor(turns)
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 We make a similar stream object for the testing data. This will allow for testing concurrent to training ie, the model will be tested after every training iteration. This will allow for early stopping if a desired accuracy is reached before the full dataset has been used for training.\\
 Note, the size of the testing chunks is defined by taking the size of the training chunks and scaling it down in proportion to the test/training set size. This ensures there are an equal number of training and testing chunks, so testing can be carried out after every training iteration.
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #make a test stream
@@ -497,7 +539,9 @@ Note, the size of the testing chunks is defined by taking the size of the traini
 > test_chunk <- floor(100 / (nrow(df_train)/nrow(df_test)))
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 Training is performed on a single chunk of data. This is achieved by retrieving a chunk from the stream object. The chunk is then used as training data for the model defined above:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > ## first sample (train) - retrieves first 100 records ##
@@ -511,14 +555,18 @@ Training is performed on a single chunk of data. This is achieved by retrieving 
 +                                 data = datastream_dataframe(sample))
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 A single chunk of test data is also taken to be used for testing on this initial training iteration:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > test_sample <- test_stream$get_points(test_stream, n = test_chunk,
 +                                       outofpoints = c("stop", "warn", "ignore"))
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 The test sample is used to evaluate the accuracy of the initial training run. It is as good as random guessing, so unsurprisingly more data will be required to build a useful classifier:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > ## Do some prediction to test the model
@@ -527,6 +575,7 @@ The test sample is used to evaluate the accuracy of the initial training run. It
 +       sprintf("Predicted: %s", predictions))
 \end{Sinput}
 \begin{Soutput}
+
               Predicted: -1 Predicted: 1
   Actuals: -1            17           13
   Actuals: 1             20           15
@@ -539,7 +588,9 @@ The test sample is used to evaluate the accuracy of the initial training run. It
 Accuracy is:  49.23077 %
 \end{Soutput}
 \end{Schunk}
+\hspace{1cm} 
 The results for each training/testing iteration will be held in a vector for later analysis:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > # hold results in a vector
@@ -548,8 +599,9 @@ The results for each training/testing iteration will be held in a vector for lat
 > test_stream$reset()
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 Now the model is incrementally trained and tested by feeding in chunks sequentially. For each iteration a training chunk is presented and the model is incrementally trained on that chunk. Then a testing chunk is presented to assess the performance of the model for each iteration, printing the current accuracy to the console. \textit{Full output not included in this document for brevity}.
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 >#train over the stream
@@ -577,10 +629,10 @@ Now the model is incrementally trained and tested by feeding in chunks sequentia
 
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 
-The final accuracy achieved was 58.1\%, which is actually higher than for the best non-streaming model. This may be due to the use of a different model type which performed better on the given dataset. This is also a reasonably high accuracy for this problem - as stated earlier, anything above 50\% is considered a positive result since an ideal game should be perfectly balanced.
 
-The improvement in accuracy with training/testing iteration is plotted in figure \ref{fig2}. We see that the classifier was rather erratic in accuracy as more data was presented to it. The general trend was for accuracy to steadily increase, although peak accuracy was reached aroumd chunk 350, suggesting only about half the data was required to fit a model. However, accuracy was increasing towards the end of the streaming process, so a larger dataset may have given even better results.
+\hspace{1cm} 
 
 \begin{Schunk}
 \begin{Sinput}
@@ -594,7 +646,7 @@ The improvement in accuracy with training/testing iteration is plotted in figure
 
 \end{Sinput}
 \end{Schunk}
-
+\hspace{1cm} 
 
 \begin{figure}[H]
 \begin{center}
@@ -604,7 +656,19 @@ The improvement in accuracy with training/testing iteration is plotted in figure
 \end {center}
 \end {figure}
 
+
+\subsection{Results}
+The final accuracy achieved was 58.1\%, which is actually higher than for the best non-streaming model. This may be due to the use of a different model type which performed better on the given dataset. This is also a reasonably high accuracy for this problem - as stated earlier, anything above 50\% is considered a positive result since an ideal game should be perfectly balanced.
+
+The improvement in accuracy with training/testing iteration is plotted in figure \ref{fig2}. We see that the classifier was rather erratic in accuracy as more data was presented to it. This is unsurprising as the dataset is inherantly noisy, with many unseen variables contributing to a team's chance of winning a game. The general trend, however, was for accuracy to steadily increase, although peak accuracy was reached around chunk 350, suggesting only about half the data was required to fit a model. However, accuracy was increasing towards the end of the streaming process, so a larger dataset may have given even better results. Future work could stream a dataset of a significantly larger size to increase accuracy.\\
+
+\subsection{Future Work}
+A more involved study in the future could include other variables to predict whether a team will win or not. The original dataset used in this study included location data, along with game type. These variables were excluded in this case to simplify the analysis. Dota2 is well-known for the wide-range of possible variables within a given game. Future studies could consider variables such as map type, player skill and experience. Furthermore, a useable AI would require a dynamic algorithm which could adapt tactics during a game as the situation changes. The results here may be used for hero selection, but to beat a human player, many more factors would require consideration. \\
+
+Another interesting area for future exploration would be the relative importance of various heros. This study found one particular hero to be dominant. However, it would be useful to know when to actually pick this hero (ie if the away team picks hero 'x', the home team should pick hero 'y' for gain an advantage of 'z'\%). A simple market basket type analysis may be sufficient to give insights into the interactions between heros, while more complex Markov models \cite{6080982} or limited Monte Carlo simulations may give better insights.
+
 \pagebreak
+
 
 \section {Text Classification}
 
@@ -615,7 +679,7 @@ This section involves analysing a collection of tweets collected during the EU r
 \subsection{Preprocessing}
 
 First, the dataset is loaded into the workspace, along with all the required libraries:
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > library(dplyr)
@@ -631,7 +695,9 @@ First, the dataset is loaded into the workspace, along with all the required lib
 > df <- read.csv("leaveRemainTweets_CW.csv")
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 The 'leave' and 'remain' tweets are seperated and stored in different objects. We also check that we have captured all tweets by seperating by label (ie there a no unlabelled tweets, or any with labels outwith 'leave' or 'remain'):
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #seperate dataframes for leave and remain tweets
@@ -646,7 +712,9 @@ The 'leave' and 'remain' tweets are seperated and stored in different objects. W
 [1] TRUE
 \end{Soutput}
 \end{Schunk}
+\hspace{1cm} 
 It is important to ensure the dataset is balanced, ie there are a similar number of leave and remain tweets. There are more leave tweets than remain ones, but the difference isn't too great:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > nrow(leave_tweets)
@@ -661,7 +729,7 @@ It is important to ensure the dataset is balanced, ie there are a similar number
 [1] 1029
 \end{Soutput}
 \end{Schunk}
-
+\hspace{1cm} 
 In order to analyse the text, a corpus will be built. This will be achieved through a dedicated function defined below. This function performs the following pre-processing steps:
 
 \begin{itemize}
@@ -673,7 +741,7 @@ In order to analyse the text, a corpus will be built. This will be achieved thro
   \item remove all standard English stopwords
   \item strip out any whitespace.
 \end{itemize}
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > buildCorpus <- function(someText){
@@ -707,6 +775,7 @@ In order to analyse the text, a corpus will be built. This will be achieved thro
 + }
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 In order to explore the tweets, we will construct a document-term matrix. This will be achieved with the following function. The function returns several useful objects:
 \begin{itemize}
   \item the document-term matrix
@@ -714,7 +783,7 @@ In order to explore the tweets, we will construct a document-term matrix. This w
   \item a frequency table for individual words (used to make wordclouds)
   \item the text corpus, as produced by the 'buildCorpus' function
 \end{itemize}
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #function to build term document matrix, along with other useful objects for analysis
@@ -734,8 +803,9 @@ In order to explore the tweets, we will construct a document-term matrix. This w
 + }
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 As the 'maketdm' function outputs a word frequency table, we can use it to produce word clouds for the leave and remain tweets. To avoid repeating tasks, the process for making and plotting wordclouds is defined in dedicated functions.
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #make corpuses and tdms from the tweets
@@ -749,15 +819,17 @@ As the 'maketdm' function outputs a word frequency table, we can use it to produ
 + }
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 \begin{figure}[H]
 \begin{center}
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #make wordclouds from the frequency tables
 > make_wordcloud(remain$freq_tab)
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 \includegraphics{submission-029}
 
 \caption {Wordclouds for the remain tweets}
@@ -780,6 +852,7 @@ As the 'maketdm' function outputs a word frequency table, we can use it to produ
 
 
 In addition to wordclouds, we can plot the most common words for each class of tweet. This is achieve with the function below:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #function to plot wordcounts
@@ -794,10 +867,11 @@ In addition to wordclouds, we can plot the most common words for each class of t
 > c<-plot_wordcount(leave$freq_table,"most common words for leave tweets")
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 Referring to figure \ref{fig10}, the most common word for leave tweeters was 'June', suggesting many of them were focused on reinforcing the timing of the referendum - ensuring people remembered to go out and vote. 'via', 'spread' and 'word' were also common, suggesting attempts to get readers to spread the message. The general theme of many of the common words for leave tweets is of trying to increase virality and therefore increase re-tweets.\\
 The most common word for remain tweeters was 'say', followed by 'stay', 'will' and 'bori[s]'. These give less of an impression of a common theme compared to the leave tweets. It is not surprising that 'Boris' is mentioned a lot by the remain tweeters since he proved to be a particularly divisive figure during the campaigning. However, the lack of common theme for leave tweets may point to an overall less coordinated campaign and may have been a contributary factor to the final result of the referendum (this is just conjecture however - it must be stressed that the dataset forms a small minority of all tweets from the campaign period).\\
 As a humorous aside 'brexitthemovi[e]' was in the top 20 most common words. I don't remember this term from the campaign period but it is interesting to see such a specific term become so popular.
-
+\hspace{1cm} 
 \begin{figure}[H]
 \begin{center}
 \begin{Schunk}
@@ -810,7 +884,7 @@ As a humorous aside 'brexitthemovi[e]' was in the top 20 most common words. I do
 \label{fig10}
 \end {center}
 \end {figure}
-
+\hspace{1cm} 
 Plotting word associations gives an impression of word usage and gives more insight into common themes between tweets for each class. This is achieved using the build in plotting function for the term-document matrix.\\
 For remain tweets (Figure \ref{fig12}), non of the associations are particularly strong when compared to the leave tweets. Of the associations that are present, many seem to convey a negative message such as 'people don't like', or 'don't know'. There doesn't seem to be much evidence of a branded campaign or attempts to spread the message to a wider population.
 
@@ -848,7 +922,7 @@ Finally 'Cameron', 'Send' and 'Speech' were strongly associated. The reason for 
 
 \subsection{Text Classification}
 Most of the preprocessing for text classification is performed within the functions defined earlier. First we create a document-term matrix from all the tweets. We only consider words with a minimum frequency of 10. This removes a significant amount of data, since only 87 unique words are considered.
-
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #transpose the dtm to get word count for each tweet
@@ -861,7 +935,9 @@ Most of the preprocessing for text classification is performed within the functi
 [1] 87
 \end{Soutput}
 \end{Schunk}
+\hspace{1cm} 
 Using the RTextTools package, the tweets are saved in a container-type object. This automatically performs a train-test split. In this case the training set forms 70\% of the data:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)),
@@ -869,7 +945,9 @@ Using the RTextTools package, the tweets are saved in a container-type object. T
 > 
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 A number of classification models are trained on the data, and evaluated on the test set. RTextTools automatically creates results objects which we can use to evaluate model performance:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 > #train some models and analyse the results
@@ -879,6 +957,7 @@ A number of classification models are trained on the data, and evaluated on the 
 
 \end{Sinput}
 \end{Schunk}
+\hspace{1cm} 
 Looking at confusion matrices for each of the model types we get the following:
 
 \begin{figure}[H]
@@ -951,9 +1030,10 @@ predicted Leave Remain
 \end {center}
 \end {figure}
 
-None of the cassification results are particularly impressive (Figure \ref{fig15} shows confusion matrices for the four model types tried). Let's take the model with the highest accuracy (the SVM with an accuracy of \textbf{58.4\%} ) and tune the hyperparameters. It should also be noted that the sensitivity for this model type is low since it tends to predict most tweets as type 'Leave'.
+None of the classification results are particularly impressive (Figure \ref{fig15} shows confusion matrices for the four model types tried). Let's take the model with the highest accuracy (the SVM with an accuracy of \textbf{58.4\%} ) and tune the hyperparameters. It should also be noted that the sensitivity for this model type is low since it tends to predict most tweets as type 'Leave'.
 
- The minimum term frequency is also reduced to incorporate more features into the model training.:
+ The minimum term frequency is also reduced to incorporate more features into the model training:
+\hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
 >#make minimum term frequency 2
@@ -979,11 +1059,12 @@ None of the cassification results are particularly impressive (Figure \ref{fig15
 [1] 0.5700943
 \end{Soutput}
 \end{Schunk}
+\hspace{1cm} 
 
 With a final accuracy of \textbf{57.\%}, the tuned model performed \textit{worse} than the initial training run. This is somewhat unexpected and a little puzzling. Several permutations of model type and minimum term frequency were tried and none achieved an accuracy improvement over the original model.\\
 
 
-\subsection{Conclusions}
+\subsection{Conclusions and Future Work}
 The reason for the poor model accuracy may simply be the size of the dataset. With only ~1000 instances for each class, the dataset was relativley small. For text-based data, more instances would normally be used to fit a reliable model. The streaming methods explored in section 2 could be used to train up future models, by pulling data from the Twitter API (or by using a web-scraping tool), allowing for a much larger dataset without memory or storage limitations. It is also likely that altering the preprocessing steps may have given better accuracy. This study was somewhat conservative in removing common words so certain words used frequently in both classes may have added noise to the data, making the classes indistinguishable.
 
 
