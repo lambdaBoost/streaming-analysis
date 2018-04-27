@@ -459,22 +459,22 @@ Internet Traffic Streams }}
 % and "HIS" in caps to complete the first word.
 The methods presented in the reviewed paper attempt to address the growing issue of traffic analysis for messaging apps on mobile devices. Mobile and internet providers require the capability to classify traffic in order to tailor services to users and to manage load on the network. However, the rise of end to end encryption makes classification of traffic an increasingly difficult problem. It is possible to first segment and then classify encrypted traffic, however past attempts were relativley slow due to a lengthy feature extraction process. They were also intensive with respect to storage and memory due to the need to store raw packet data. The variable length of packets also affected classification accuracy. By running the clustering and classification of actual data in a streaming manner and iterativley select features from offline training data, this study sought to both decrease runtime and increase accuracy.
 
-\section{Relevant Work}
+\subsection{Relevant Work}
 The paper acknowleges previous studies \cite{Haffner2005} \cite{Raahemi2008}  \cite{Zander2005} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \emph{Huanhuan2005} \emph{Fu2016}, including one by the same team \cite{Fu2016}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
 
 
 
-\section{Methodology}
+\subsection{Methodology}
 Thw raw data used consisted of raw packets of traffic data from facebook, Whatsapp and Wechat, with the objective being to classify the usage activity (audio, location, text etc) of the data at a given point in time. The model used incorporated both offline and online (streaming) elements, with training performed offline and clustering/classification of real-world data performed in a streaming manner. The offline segment involved training up a random forest classifier with usage activity as the dependant variable. Pre-collected and labelled messaging traffic was used to train the random forest after feature extraction which involved extracting features. The data was then split into time windows and a feature selection stage used to determine the best features for clasification. The individual time windows, across the selected features, were then used to train the random forest classifier. The optimal features were also stored for use in the online stage.
 
 The streaming stage involved streaming raw packets and extracting the optimal features (as defined offline). The data was then split into time windows which were segmented in a streaming manner using a custom implementation of KMeans clustering, referred to as recursive Constrained KMeans Clustering (rCKC). This recursivley splits clusters based on the derived property \textit{Maximal Inner Activity Similarity (IAS)}. Clusters of similar traffic are expected to have low IAS values. The individual traffic segments (note, each segment represents similar traffic) are then passed into the pre-trained random forest classifier to determine the usage activity.
 
 
-\section{Results}
+\subsection{Results}
 To evaluate model effectiveness, the offline portion of the model was first conmpared to other baseline models; followed by a comparison of the full streaming model (pre-trained offline) against previous approaches. The Hierachical Random Forest classifier (HRF) was assessed using two accuracy metrics: Total Duration Accuracy (TDA) and Total Volume Accuracy (TVA). Both accuracy metrics are higher for the proposed HRF classifier across all three messaging services. 
 The entire model, including the streaming section, was then tested against a number of baseline models. The TDA and TVA for the model were higher than any of the other baseline models.Along with higher accuracy, the new model exhibited a greatly reduced runtime compared to the baseline models, with a 14.3x speedup compared to the next most accurate model. 
 
-\section{Conclusion}
+\subsection{Conclusion}
 The model presented was able to classify encrypted messaging traffic with a higher accuracy than any of the previously tested models. By streaming the testing stage, and pre-seleting the most important features, classification speed was greatly increased. This increases the viability of the model for real-world applications where real-time analysis of large volumes of messaging data is a requirement.
 For the offline classifier, it should be noted that the result does not appear to be statistically significant from the basline models given the figures provides as the confidence intervals are seen to overlap. The authors do not state the confidence level used so it is not possible to infer the true significance of the result. Likewise,  it is stated that the result for the stream classifier was 'significantly' higher but it is unclear whether the authors are inferring statistical significance as there is no mention of repeatability and no confidence intervals are shown on the overall results plot.
 

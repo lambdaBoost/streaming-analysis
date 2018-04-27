@@ -53,9 +53,9 @@
 \input{submission-concordance}
 
 
-\title{\LARGE Coursework  \\ Module Name (CMM...)}
+\title{\LARGE Coursework  \\ Module Name (CMM536)}
 
-\author{Your Name, \textit{\href{email@rgu.ac.uk}{email@rgu.ac.uk}}}
+\author{Alexander Hall, \textit{\href{1608941@rgu.ac.uk}{1608941@rgu.ac.uk}}}
 \maketitle
 % \begin{flushleft} \today \end{flushleft} 
 \noindent\rule{16cm}{0.4pt}
@@ -65,16 +65,15 @@
 
 \section{Research}
 
-[your text goes here]
-The paper that was chosen for this work is \cite{6779381}. The authors provided a full review on different streaming algorithms and methos that handle concept drfit?. Below is a review of this paper that includes problem statement, related work and methods applied.\\
+The paper that was chosen for this work is \cite{Liu:2017:ERI:3097983.3098049}. The authors attempted to improve methods for classifying encrypted messaging traffic through streaming methods. Below is a review of this paper that includes problem statement, related work and methods applied.\\
 
-\textcolor{blue}{\textit{Notice how I cited the paper, and how does it appear in the document, to do so, you need to have a file in your working director (references.bib), this file simply contains the bibtext items for the papers you chose. These BibTex items are often avaiable to download from publishers website, see Figure~\ref{fig1}}}
+
 \subsection{Problem Statement}
 
 The methods presented in the reviewed paper attempt to address the growing issue of traffic analysis for messaging apps on mobile devices. Mobile and internet providers require the capability to classify traffic in order to tailor services to users and to manage load on the network. However, the rise of end to end encryption makes classification of traffic an increasingly difficult problem. It is possible to first segment and then classify encrypted traffic, however past attempts were relativley slow due to a lengthy feature extraction process. They were also intensive with respect to storage and memory due to the need to store raw packet data. The variable length of packets also affected classification accuracy. By running the clustering and classification of actual data in a streaming manner and iterativley select features from offline training data, this study sought to both decrease runtime and increase accuracy.
 
 \subsection{Relevant Work}
-The paper acknowleges previous studies \emph{Haffner2005} \emph{Raahemi2008}  \emph{Zander2005} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \emph{Huanhuan2005} \emph{Fu2016}, including one by the same team \emph{Fu2016}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
+The paper acknowleges previous studies \emph{Haffner:2005:AAC:1080173.1080183} \cite{4669733}  \emph{1550864} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \cite{5693957}, including one by the same team \cite{7377112}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
 
 
 
@@ -92,7 +91,7 @@ The entire model, including the streaming section, was then tested against a num
 The model presented was able to classify encrypted messaging traffic with a higher accuracy than any of the previously tested models. By streaming the testing stage, and pre-seleting the most important features, classification speed was greatly increased. This increases the viability of the model for real-world applications where real-time analysis of large volumes of messaging data is a requirement.
 For the offline classifier, it should be noted that the result does not appear to be statistically significant from the basline models given the figures provides as the confidence intervals are seen to overlap. The authors do not state the confidence level used so it is not possible to infer the true significance of the result. Likewise,  it is stated that the result for the stream classifier was 'significantly' higher but it is unclear whether the authors are inferring statistical significance as there is no mention of repeatability and no confidence intervals are shown on the overall results plot.
 
--TODO citations
+
 
 
 \section {Data Streams}
@@ -290,6 +289,20 @@ The resulting accuracy from each parameter combination is saved in the 'Accuracy
 +   print(i)
 + }
 \end{Sinput}
+\begin{Soutput}
+[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+[1] 6
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+[1] 11
+[1] 12
+\end{Soutput}
 \end{Schunk}
 
 The parameters which produced the best model are selected and that model is evaluated on the testing set to give a final accuracy for the random forest classifier.
@@ -305,6 +318,33 @@ The parameters which produced the best model are selected and that model is eval
 > predictions <- predict(temp_model , df_valid)
 > confusionMatrix(predictions,df_valid$won)
 \end{Sinput}
+\begin{Soutput}
+Confusion Matrix and Statistics
+
+          Reference
+Prediction   -1    1
+        -1 4019 3194
+        1  5548 7442
+                                          
+               Accuracy : 0.5673          
+                 95% CI : (0.5604, 0.5741)
+    No Information Rate : 0.5265          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.1213          
+ Mcnemar's Test P-Value : < 2.2e-16       
+                                          
+            Sensitivity : 0.4201          
+            Specificity : 0.6997          
+         Pos Pred Value : 0.5572          
+         Neg Pred Value : 0.5729          
+             Prevalence : 0.4735          
+         Detection Rate : 0.1989          
+   Detection Prevalence : 0.3570          
+      Balanced Accuracy : 0.5599          
+                                          
+       'Positive' Class : -1              
+\end{Soutput}
 \end{Schunk}
 TODO - discuss the results
     - variable importances
@@ -363,9 +403,11 @@ Training is performed on a single chunk of data. This is achieved by retrieving 
 \begin{Schunk}
 \begin{Sinput}
 > ## first sample (train) - retrieves first 100 records ##
+> set.seed(57)
 > sample <- dfStream$get_points(dfStream, n = chunk,
 +                               outofpoints = c("stop", "warn", "ignore"))
 > ## Train the first chunk
+> 
 > myboostedclassifier <- trainMOA(model = mymodel,
 +                                 formula = won ~.,
 +                                 data = datastream_dataframe(sample))
@@ -378,7 +420,7 @@ A single chunk of test data is also taken to be used for testing on this initial
 +                                       outofpoints = c("stop", "warn", "ignore"))
 \end{Sinput}
 \end{Schunk}
-The test sample is used to evaluate the accuracy of the initial training run:
+The test sample is used to evaluate the accuracy of the initial training run. It is as good as random guessing, so unsurprisingly more data will be required to build a useful classifier:
 \begin{Schunk}
 \begin{Sinput}
 > ## Do some prediction to test the model
@@ -399,7 +441,69 @@ The test sample is used to evaluate the accuracy of the initial training run:
 Accuracy is:  49.23077 %
 \end{Soutput}
 \end{Schunk}
+The results for each training/testing iteration will be held in a vector for later analysis:
+\begin{Schunk}
+\begin{Sinput}
+> # hold results in a vector
+> accuracies <- c()
+> #reset the test stream 
+> test_stream$reset()
+\end{Sinput}
+\end{Schunk}
+Now the model is incrementally trained and tested by feeding in chunks sequentially. For each iteration a training chunk is presented and the model is incrementally trained on that chunk. Then a testing chunk is presented to assess the performance of the model for each iteration, printing the current accuracy to the console. \textit{Full output not included in this document for brevity}.
 
+\begin{Schunk}
+\begin{Sinput}
+>#train over the stream
+>for (i in 1:turns){
+>  # next sample
+> sample <- dfStream$get_points(dfStream, n = chunk,
++                               outofpoints = c("stop", "warn", "ignore"))
+>  test_sample <- test_stream$get_points(test_stream, n = test_chunk,
++                                       outofpoints = c("stop", "warn", "ignore"))
+>  ## Update the trained model with the new chunks
+>  myboostedclassifier <- trainMOA(model = myboostedclassifier$model,
++                                  formula = won ~ .,
++                                  data = datastream_dataframe(sample),
++                                  reset = FALSE,trace = FALSE)
+>  cat("chunk: ",i,"\n")
+  
+>  predictions <- predict(myboostedclassifier, test_sample)
+>  # calculate accuracy
+>  accuracies[i] <- sum(predictions==test_sample$won)/nrow(test_sample)*100
+>  if(i %% 100 = 0){
+>  cat("chunk ",i," accuracy = ",accuracies[i],"%","\n")
+>  }
+>}
+
+\end{Sinput}
+\end{Schunk}
+
+The final accuracy achieved was 58.1\%, which is actually higher than for the best non-streaming model. This may be due to the use of a different model type which performed better on the given dataset. This is also a reasonably high accuracy for this problem - as stated earlier, anything above 50\% is considered a positive result since an ideal game should be perfectly balanced.
+
+The improvement in accuracy with training/testing iteration is plotted below. We see that the classifier was rather erratic in accuracy as more data was presented to it. The general trend was for accuracy to steadily increase, although peak accuracy was reached aroumd chunk 350, suggesting only about half the data was required to fit a model. However, accuracy was increasing towards the end of the streaming process, so a larger dataset may have given even better results.
+
+\begin{Schunk}
+\begin{Sinput}
+>accuracies <- as.data.frame(accuracies)
+>ggplot(accuracies,aes(y=accuracies,x=seq(1,length(accuracies))))+
++  geom_line(col="blue",alpha=0.7)+
++ geom_smooth(method="lm",col="red")+
++  labs(title="accuracy of streaming classifier",subtitle="trendline shown in red")+
++  xlab("chunk")+
++  ylab("accuracy")
+
+\end{Sinput}
+\end{Schunk}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{stream_result}
+\caption {Progressive accuracy of the stream classifier}
+\label{fig2}
+\end {center}
+\end {figure}
 
 \section {Text Classification}
 
@@ -441,7 +545,7 @@ The 'leave' and 'remain' tweets are seperated and stored in different objects. W
 [1] TRUE
 \end{Soutput}
 \end{Schunk}
-It is important to ensure the dataset is balanced, ie there are a similar number of leave and remain tweets. This is indeed the case:
+It is important to ensure the dataset is balanced, ie there are a similar number of leave and remain tweets. There are more leave tweets than remain ones, but the difference isn't too great:
 \begin{Schunk}
 \begin{Sinput}
 > nrow(leave_tweets)
@@ -552,7 +656,7 @@ As the 'maketdm' function outputs a word frequency table, we can use it to produ
 > make_wordcloud(remain$freq_tab)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{submission-028}
+\includegraphics{submission-029}
 
 \caption {Wordclouds for the remain tweets}
 \label{fig10}
@@ -566,7 +670,7 @@ As the 'maketdm' function outputs a word frequency table, we can use it to produ
 > make_wordcloud(leave$freq_tab)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{submission-029}
+\includegraphics{submission-030}
 \caption {Wordclouds for the leave tweets}
 \label{fig11}
 \end {center}
@@ -576,7 +680,7 @@ As the 'maketdm' function outputs a word frequency table, we can use it to produ
 In addition to wordclouds, we can plot the most common words for each class of tweet. This is achieve with the function below:
 \begin{Schunk}
 \begin{Sinput}
-> #function to plot wordclouds
+> #function to plot wordcounts
 > plot_wordcount <- function(freq_tab,title_text){
 +   ggplot(head(freq_tab,20), aes(x=word,y=freq))+
 +     geom_bar(stat="identity")+
@@ -599,7 +703,7 @@ As a humorous aside 'brexitthemovi[e]' was in the top 20 most common words. I do
 > grid.arrange(a,b,c, nrow = 3)
 \end{Sinput}
 \end{Schunk}
-\includegraphics{submission-031}
+\includegraphics{submission-032}
 \caption {Wordcounts for the tweets}
 \label{fig10}
 \end {center}
@@ -616,7 +720,7 @@ For remain tweets, non of the associations are particularly strong when compared
 +      weighting = T, main="word association for remain tweets")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{submission-032}
+\includegraphics{submission-033}
 \caption {Word association for remain tweets}
 \label{fig12}
 \end {center}
@@ -633,7 +737,7 @@ Finally 'Cameron', 'Send' and 'Speech' were strongly associated. The reason for 
 +      weighting = T, main="word association for leave tweets")
 \end{Sinput}
 \end{Schunk}
-\includegraphics{submission-033}
+\includegraphics{submission-034}
 \caption {Word association for leave tweets}
 \label{fig12}
 \end {center}
@@ -658,19 +762,106 @@ Most of the preprocessing for text classification is performed within the functi
 Using the RTextTools package, the tweets are saved in a container-type object. This automatically performs a train-test split. In this case the training set forms 70\% of the data:
 \begin{Schunk}
 \begin{Sinput}
-> container <- create_container(dtm, as.numeric(factor(df$label)),trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=FALSE)
+> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
 > 
 \end{Sinput}
 \end{Schunk}
 A number of classification models are trained on the data, and evaluated on the test set. RTextTools automatically creates results and analytics objects which we can use to evaluate model performance:
 \begin{Schunk}
 \begin{Sinput}
-> #train some models and se what we get
-> models <- train_models(container,algorithms=c("SVM","TREE","BAGGING","BOOSTING","RF"))
+> #train some models and analyse the results
+> models <- train_models(container,algorithms=c("SVM","BAGGING","BOOSTING","RF"))
 > results <- classify_models(container, models) #can use for conf matrix
-> analytics <- create_analytics(container, results)
+> #analytics <- create_analytics(container, results)
 \end{Sinput}
 \end{Schunk}
+Looking at confusion matrices for each of the model types we get the following:
+\begin{Schunk}
+\begin{Sinput}
+> print("SVM")
+\end{Sinput}
+\begin{Soutput}
+[1] "SVM"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$SVM_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    379    270
+   Remain    15     21
+\end{Soutput}
+\begin{Sinput}
+> print("Bagging")
+\end{Sinput}
+\begin{Soutput}
+[1] "Bagging"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$BAGGING_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    100     41
+   Remain   294    250
+\end{Soutput}
+\begin{Sinput}
+> print("Boosting")
+\end{Sinput}
+\begin{Soutput}
+[1] "Boosting"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$LOGITBOOST_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    383    272
+   Remain    11     19
+\end{Soutput}
+\begin{Sinput}
+> print("Random Forest")
+\end{Sinput}
+\begin{Soutput}
+[1] "Random Forest"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$FORESTS_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    105     44
+   Remain   289    247
+\end{Soutput}
+\end{Schunk}
+None of these are particularly impressive. Let's take the model with the highest accuracy (the SVM) and tune the hyperparameters. The minimum term frequency is also reduced to incorporate more features into the model training.:
+\begin{Schunk}
+\begin{Sinput}
+> dtm<-make_tdm(df$text,2)
+> dtm<-dtm$dtm
+> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
+> library(e1071)
+> tuned_svm <- tune.svm(x=container@training_matrix, y=container@training_codes, 
++                       validation.x = container@classification_matrix, validation.y=container@testing_codes,
++                       gamma=10^(-6:0) , cost=10^(-1:3))
+> print('model accuracy = ' )
+\end{Sinput}
+\begin{Soutput}
+[1] "model accuracy = "
+\end{Soutput}
+\begin{Sinput}
+> 1-tuned_svm$best.performance
+\end{Sinput}
+\begin{Soutput}
+[1] 0.5700943
+\end{Soutput}
+\end{Schunk}
+
+
 
 
 \section{Reproducing Results}

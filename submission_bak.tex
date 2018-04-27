@@ -48,8 +48,9 @@
 \end{filecontents*}
 
 
+\usepackage{Sweave}
 \begin{document}
-\SweaveOpts{concordance=TRUE}
+\input{submission-concordance}
 
 
 \title{\LARGE Coursework  \\ Module Name (CMM536)}
@@ -112,25 +113,24 @@ Other independant variables are present in the form of game type, game mode and 
 
 To study the dataset in more detail, let's load it into the workspace, along with the required libraries. The original dataset, as downloaded, is already split into a training and testing set. However, in order to ensure the split as indeed random and stratified, the data was re-combined into a single dataset.
 
-<<>>=
-library(dplyr)
-library(rjson)
-library(caret)
-library(randomForest)
-library(ROCR)
-library(dummies)
-
-#read in the train and test datasets and combine 
-
-df1 <- read.csv('dota_dataset\\dota2Train.csv')
-df2 <- read.csv('dota_dataset\\dota2Test.csv')
-
-names(df2) <- names(df1)
-
-#combine the original datasets to a single dataframe
-df <- rbind(df1,df2)
-rm(df1,df2)
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(dplyr)
+> library(rjson)
+> library(caret)
+> library(randomForest)
+> library(ROCR)
+> library(dummies)
+> #read in the train and test datasets and combine 
+> 
+> df1 <- read.csv('dota_dataset\\dota2Train.csv')
+> df2 <- read.csv('dota_dataset\\dota2Test.csv')
+> names(df2) <- names(df1)
+> #combine the original datasets to a single dataframe
+> df <- rbind(df1,df2)
+> rm(df1,df2)
+\end{Sinput}
+\end{Schunk}
 
 Looking at the basic structure of the data we note the following (outputs not shown in pdf due to size):
  
@@ -140,34 +140,34 @@ Looking at the basic structure of the data we note the following (outputs not sh
   \item The columns are not named. They are defined in the readme for the dataset so we will add names later
 \end{itemize}
 
-<<eval=FALSE>>=
-
-library(xtable)
-
-print(xtable(head(df)))
-
-str(df)
-
-names(df)
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(xtable)
+> print(xtable(head(df)))
+> str(df)
+> names(df)
+\end{Sinput}
+\end{Schunk}
 Let's also check the size of the dataset:
-<<>>=
-#record number of rows and columns
-paste('number of columns =' , ncol(df) , '. number of rows =', nrow(df))
-@
+\begin{Schunk}
+\begin{Sinput}
+> #record number of rows and columns
+> paste('number of columns =' , ncol(df) , '. number of rows =', nrow(df))
+\end{Sinput}
+\begin{Soutput}
+[1] "number of columns = 117 . number of rows = 102942"
+\end{Soutput}
+\end{Schunk}
 
 Now let's check the class distribution (ie do we have an approximately equal number of team 1 wins as team 2 wins?).
 The distribution is indeed close to equal so we do not need to worry about class imbalance later on. It is interesting to note there is some imbalance, the reason for this is not clear but probably has something to do with the manner in which the data was collected.
-<<eval=FALSE >>=
-#check value distribution of response variable column
-table(df[,1])
-@
+\begin{Schunk}
+\begin{Sinput}
+> #check value distribution of response variable column
+> table(df[,1])
+\end{Sinput}
+\end{Schunk}
 
-<<eval=FALSE ,echo=FALSE>>=
-library(xtable)
-
-print(xtable(table(df[,1])))
-@
 % latex table generated in R 3.4.3 by xtable 1.8-2 package
 % Sun Apr 22 18:14:40 2018
 \begin{table}[ht]
@@ -184,56 +184,71 @@ print(xtable(table(df[,1])))
 
 An advantage of this dataset is there are no missing values. This is not surprising as the data was captured using the Dota 2 API. Here we also check that each team has an equal number of heroes which is a requirement for a game:
 
-<<>>=
-#check for missing values (there are none)
-sum(complete.cases(df))==nrow(df)
-
-#check there are equal number of heroes present in each team (hero values for all rows should sum to zero)
-sum((rowSums(df[5:ncol(df)]))) == 0
-@
+\begin{Schunk}
+\begin{Sinput}
+> #check for missing values (there are none)
+> sum(complete.cases(df))==nrow(df)
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\begin{Sinput}
+> #check there are equal number of heroes present in each team (hero values for all rows should sum to zero)
+> sum((rowSums(df[5:ncol(df)]))) == 0
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
 
 As discussed above, some preprocessing is required. First, we convert all numeric columns to factors:
-<<>>=
-df[sapply(df, is.numeric)] <- lapply(df[sapply(df, is.numeric)], as.factor)
-@
+\begin{Schunk}
+\begin{Sinput}
+> df[sapply(df, is.numeric)] <- lapply(df[sapply(df, is.numeric)], as.factor)
+\end{Sinput}
+\end{Schunk}
 
 The column names are added in two stages. The first four columns are named manually as specified in teh dataset description.\\
 The remaining columns represent the individual heros. The column names are extracted from the .json file supplied with the dataset:
-<<>>=
-#add column names to the first few columns
-names(df)[1:4] <- c('won','cluster_id','game_mode','game_type')
-
-#populate the other column names
-#load in json file and use it to populate column names
-hero_names <- fromJSON(file ="dota_dataset\\heroes.json")
-
-for ( i in c(1:length(hero_names$heroes))){
-  names(df)[i+4] <- hero_names$heroes[[i]]$name
-}
-@
+\begin{Schunk}
+\begin{Sinput}
+> #add column names to the first few columns
+> names(df)[1:4] <- c('won','cluster_id','game_mode','game_type')
+> #populate the other column names
+> #load in json file and use it to populate column names
+> hero_names <- fromJSON(file ="dota_dataset\\heroes.json")
+> for ( i in c(1:length(hero_names$heroes))){
++   names(df)[i+4] <- hero_names$heroes[[i]]$name
++ }
+\end{Sinput}
+\end{Schunk}
 
 
 Here we drop columns that are not related to heros (this analysis is concerned only with hero choice so we drop game type and location related columns). 
 One column has the same value for every entry. This was noticed during the analysis stage. The column represents a mandatory hero which muct be included in the team. Since it conveys no information it is dropped:
-<<>>=
-#drop unwanted columns
-df <- df%>%
-  select(-c(lina, cluster_id , game_mode , game_type))
-@
+\begin{Schunk}
+\begin{Sinput}
+> #drop unwanted columns
+> df <- df%>%
++   select(-c(lina, cluster_id , game_mode , game_type))
+\end{Sinput}
+\end{Schunk}
 
 
 
 
 \subsection{Build Classifier}
 The dataset is now split into training, testing and validation sets. 60\% of the data is used for training with 20\% used for testing and validation respectivley:
-<<>>=
-set.seed(57)
-# Split into train test and validation sets
-index <- sample(c(1:3), size = nrow(df), replace = TRUE, prob = c(.6, .2, .2))
-df_train <- df[index == 1,]
-df_test <- df[index == 2,]
-df_valid <- df[index == 3,]
-@
+\begin{Schunk}
+\begin{Sinput}
+> set.seed(57)
+> # Split into train test and validation sets
+> index <- sample(c(1:3), size = nrow(df), replace = TRUE, prob = c(.6, .2, .2))
+> df_train <- df[index == 1,]
+> df_test <- df[index == 2,]
+> df_valid <- df[index == 3,]
+\end{Sinput}
+\end{Schunk}
 
 A random forest classifier was used to classify the data. This model was chosen for two main reasons:
 \begin{itemize}
@@ -245,48 +260,93 @@ A random forest classifier was used to classify the data. This model was chosen 
 Rather than simply training up and testing a single model, some parameter tuning was carried out. The mtry and nodesize parameters were tuned using a tuning grid. Although this gave only 9 different combinations of hyperparameters, it serves as a demonstration of how model selection is achieved.
 
 Here, a parameter grid is defined and stored as a dataframe to be accessed as each candidate model is trained
-<<eval=TRUE>>=
-num_attributes <- ncol(df_train)
-#build a parameter grid
-# Random forest
-mtry <- as.integer(c(num_attributes * 0.25, num_attributes / 3, num_attributes * 0.5, num_attributes * 0.8))
-nodesize <- c( 3, 5, 20)
-ntree <- c(200)
-
-PG<- as.data.frame(expand.grid(mtry=mtry, nodesize=nodesize,
-                                         ntree=ntree, stringsAsFactors=F))
-@
+\begin{Schunk}
+\begin{Sinput}
+> num_attributes <- ncol(df_train)
+> #build a parameter grid
+> # Random forest
+> mtry <- as.integer(c(num_attributes * 0.25, num_attributes / 3, num_attributes * 0.5, num_attributes * 0.8))
+> nodesize <- c( 3, 5, 20)
+> ntree <- c(200)
+> PG<- as.data.frame(expand.grid(mtry=mtry, nodesize=nodesize,
++                                          ntree=ntree, stringsAsFactors=F))
+\end{Sinput}
+\end{Schunk}
 Now, we train up a random forest on the training set for each combination of parameters in the parameter grid. \\
 For each combination of parameters, the resulting model is tested on the evaluation set and the accuracy calculated.
 The resulting accuracy from each parameter combination is saved in the 'Accuracy' column of the parameter grid table:
-<<eval=TRUE>>=
-for (i in c(1:nrow(PG))){
-  mtry <- PG[i, "mtry"]
-  nodesize <- PG[i, "nodesize"]
-  ntree <- PG[i, "ntree"]
-
-  temp_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=ntree, nodesize=nodesize)
-  predictions <- predict(temp_model , df_valid)
-  cm<- confusionMatrix(predictions,df_valid$won)
-  accuracy <- cm$overall['Accuracy']
-  PG[i,'Accuracy'] <- accuracy
-  print(i)
-}
-@
+\begin{Schunk}
+\begin{Sinput}
+> for (i in c(1:nrow(PG))){
++   mtry <- PG[i, "mtry"]
++   nodesize <- PG[i, "nodesize"]
++   ntree <- PG[i, "ntree"]
++ 
++   temp_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=ntree, nodesize=nodesize)
++   predictions <- predict(temp_model , df_valid)
++   cm<- confusionMatrix(predictions,df_valid$won)
++   accuracy <- cm$overall['Accuracy']
++   PG[i,'Accuracy'] <- accuracy
++   print(i)
++ }
+\end{Sinput}
+\begin{Soutput}
+[1] 1
+[1] 2
+[1] 3
+[1] 4
+[1] 5
+[1] 6
+[1] 7
+[1] 8
+[1] 9
+[1] 10
+[1] 11
+[1] 12
+\end{Soutput}
+\end{Schunk}
 
 The parameters which produced the best model are selected and that model is evaluated on the testing set to give a final accuracy for the random forest classifier.
-<<eval=TRUE>>=
-#assess best model on test set
-PG <- PG%>%
-  arrange(desc(Accuracy))
+\begin{Schunk}
+\begin{Sinput}
+> #assess best model on test set
+> PG <- PG%>%
++   arrange(desc(Accuracy))
+> mtry <- PG[1, "mtry"]
+> nodesize <- PG[1, "nodesize"]
+> ntree <- PG[1, "ntree"]
+> best_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=ntree, nodesize=nodesize , importance=T)
+> predictions <- predict(temp_model , df_valid)
+> confusionMatrix(predictions,df_valid$won)
+\end{Sinput}
+\begin{Soutput}
+Confusion Matrix and Statistics
 
-mtry <- PG[1, "mtry"]
-nodesize <- PG[1, "nodesize"]
-ntree <- PG[1, "ntree"]
-best_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=ntree, nodesize=nodesize , importance=T)
-predictions <- predict(temp_model , df_valid)
-confusionMatrix(predictions,df_valid$won)
-@
+          Reference
+Prediction   -1    1
+        -1 4019 3194
+        1  5548 7442
+                                          
+               Accuracy : 0.5673          
+                 95% CI : (0.5604, 0.5741)
+    No Information Rate : 0.5265          
+    P-Value [Acc > NIR] : < 2.2e-16       
+                                          
+                  Kappa : 0.1213          
+ Mcnemar's Test P-Value : < 2.2e-16       
+                                          
+            Sensitivity : 0.4201          
+            Specificity : 0.6997          
+         Pos Pred Value : 0.5572          
+         Neg Pred Value : 0.5729          
+             Prevalence : 0.4735          
+         Detection Rate : 0.1989          
+   Detection Prevalence : 0.3570          
+      Balanced Accuracy : 0.5599          
+                                          
+       'Positive' Class : -1              
+\end{Soutput}
+\end{Schunk}
 TODO - discuss the results
     - variable importances
     -data diagram
@@ -297,75 +357,100 @@ TODO - discuss the results
 The classifier in the previous section required over two hours of runtime for a full parameter tuning run. It may be possible to achieve a similar accuracy with just a subset of the original dataset. To ascertain whether this is the case, a streaming classifier was produced which incrementaly trains and tests a model on chunks of the dataset. This also has the advantage of preventing memory overflow since the whole dataset need not be saved in memory.
 
 First the required libraries are loaded:
-<<>>=
-library(data.table)
-library(RMOA)
-library(stream)
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(data.table)
+> library(RMOA)
+> library(stream)
+\end{Sinput}
+\end{Schunk}
 
 A validation set will not be used in this case since the aim is to demonstrate a streaming classifier; parameter tuning was demonstrated in the above section. So, the validation and testing set from the above section are combined to create a new testing set. The stream classifier will therefore be trained on 60\% of the original dataset:
-<<>>=
-df_test <- bind_rows(df_test,df_valid)
-
-@
+\begin{Schunk}
+\begin{Sinput}
+> df_test <- bind_rows(df_test,df_valid)
+> 
+\end{Sinput}
+\end{Schunk}
 Several classifier types were tried but that which gave the quickest improvement in accuracy was the 'Ozaboost' classifier. This is a boosted model created specifically for streaming. A Hoeffding tree is used as the base learner.
-<<>>=
-mymodel <- OzaBoost(baseLearner="trees.HoeffdingTree", ensemblesize=30)
-@
+\begin{Schunk}
+\begin{Sinput}
+> mymodel <- OzaBoost(baseLearner="trees.HoeffdingTree", ensemblesize=30)
+\end{Sinput}
+\end{Schunk}
 A stream object is created to pass the data incrementally to the model. It was decided to stream data in chunks of 100 instances. For the training set of ~60000 rows, this will give ~600 chunks overall. The dataset has over 100 dimensions so 100 rows should contain enough data for the model to meaningfully update itself on every iteration.
-<<>>=
-# Create a stream 
-dfStream <-datastream_dataframe(data=as.data.table(df_train))
-# other variables for training
-chunk <- 100
-#use the chunk size and size of the training set to define the number of turns required for training
-turns <- (nrow(dfStream$data)/chunk)-1
-turns <- floor(turns)
-@
+\begin{Schunk}
+\begin{Sinput}
+> # Create a stream 
+> dfStream <-datastream_dataframe(data=as.data.table(df_train))
+> # other variables for training
+> chunk <- 100
+> #use the chunk size and size of the training set to define the number of turns required for training
+> turns <- (nrow(dfStream$data)/chunk)-1
+> turns <- floor(turns)
+\end{Sinput}
+\end{Schunk}
 We make a similar stream object for the testing data. This will allow for testing concurrent to training ie, the model will be tested after every training iteration. This will allow for early stopping if a desired accuracy is reached before the full dataset has been used for training.\\
 Note, the size of the testing chunks is defined by taking the size of the training chunks and scaling it down in proportion to the test/training set size. This ensures there are an equal number of training and testing chunks, so testing can be carried out after every training iteration.
-<<>>=
-#make a test stream
-test_stream <- datastream_dataframe(data=as.data.table(df_test))
-# other variables for testing
-test_chunk <- floor(100 / (nrow(df_train)/nrow(df_test)))
-@
+\begin{Schunk}
+\begin{Sinput}
+> #make a test stream
+> test_stream <- datastream_dataframe(data=as.data.table(df_test))
+> # other variables for testing
+> test_chunk <- floor(100 / (nrow(df_train)/nrow(df_test)))
+\end{Sinput}
+\end{Schunk}
 Training is performed on a single chunk of data. This is achieved by retrieving a chunk from the stream object. The chunk is then used as training data for the model defined above:
-<<>>=
-## first sample (train) - retrieves first 100 records ##
-set.seed(57)
-sample <- dfStream$get_points(dfStream, n = chunk,
-                              outofpoints = c("stop", "warn", "ignore"))
-
-
-
-## Train the first chunk
-
-myboostedclassifier <- trainMOA(model = mymodel,
-                                formula = won ~.,
-                                data = datastream_dataframe(sample))
-@
+\begin{Schunk}
+\begin{Sinput}
+> ## first sample (train) - retrieves first 100 records ##
+> set.seed(57)
+> sample <- dfStream$get_points(dfStream, n = chunk,
++                               outofpoints = c("stop", "warn", "ignore"))
+> ## Train the first chunk
+> 
+> myboostedclassifier <- trainMOA(model = mymodel,
++                                 formula = won ~.,
++                                 data = datastream_dataframe(sample))
+\end{Sinput}
+\end{Schunk}
 A single chunk of test data is also taken to be used for testing on this initial training iteration:
-<<>>=
-test_sample <- test_stream$get_points(test_stream, n = test_chunk,
-                                      outofpoints = c("stop", "warn", "ignore"))
-@
+\begin{Schunk}
+\begin{Sinput}
+> test_sample <- test_stream$get_points(test_stream, n = test_chunk,
++                                       outofpoints = c("stop", "warn", "ignore"))
+\end{Sinput}
+\end{Schunk}
 The test sample is used to evaluate the accuracy of the initial training run. It is as good as random guessing, so unsurprisingly more data will be required to build a useful classifier:
-<<>>=
-## Do some prediction to test the model
-predictions <- predict(myboostedclassifier, test_sample)
-table(sprintf("Actuals: %s", test_sample$won),
-      sprintf("Predicted: %s", predictions))
-# calculate accuracy
-cat("Accuracy is: ", sum(predictions==test_sample$won)/nrow(test_sample)*100,"%")
-@
+\begin{Schunk}
+\begin{Sinput}
+> ## Do some prediction to test the model
+> predictions <- predict(myboostedclassifier, test_sample)
+> table(sprintf("Actuals: %s", test_sample$won),
++       sprintf("Predicted: %s", predictions))
+\end{Sinput}
+\begin{Soutput}
+              Predicted: -1 Predicted: 1
+  Actuals: -1            17           13
+  Actuals: 1             20           15
+\end{Soutput}
+\begin{Sinput}
+> # calculate accuracy
+> cat("Accuracy is: ", sum(predictions==test_sample$won)/nrow(test_sample)*100,"%")
+\end{Sinput}
+\begin{Soutput}
+Accuracy is:  49.23077 %
+\end{Soutput}
+\end{Schunk}
 The results for each training/testing iteration will be held in a vector for later analysis:
-<<>>=
-# hold results in a vector
-accuracies <- c()
-#reset the test stream 
-test_stream$reset()
-@
+\begin{Schunk}
+\begin{Sinput}
+> # hold results in a vector
+> accuracies <- c()
+> #reset the test stream 
+> test_stream$reset()
+\end{Sinput}
+\end{Schunk}
 
 
 \section {Text Classification}
@@ -378,36 +463,51 @@ This section involves analysing a collection of tweets collected during the EU r
 
 First, the dataset is loaded into the workspace, along with all the required libraries:
 
-<<>>=
-library(dplyr)
-library(tm)
-library(SnowballC)
-library(RColorBrewer)
-library(wordcloud)
-library(ggplot2)
-library(gridExtra)
-library(graph)
-library(Rgraphviz)
-library(RTextTools)
-
-df <- read.csv("leaveRemainTweets_CW.csv")
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(dplyr)
+> library(tm)
+> library(SnowballC)
+> library(RColorBrewer)
+> library(wordcloud)
+> library(ggplot2)
+> library(gridExtra)
+> library(graph)
+> library(Rgraphviz)
+> library(RTextTools)
+> df <- read.csv("leaveRemainTweets_CW.csv")
+\end{Sinput}
+\end{Schunk}
 The 'leave' and 'remain' tweets are seperated and stored in different objects. We also check that we have captured all tweets by seperating by label (ie there a no unlabelled tweets, or any with labels outwith 'leave' or 'remain'):
-<<>>=
-#seperate dataframes for leave and remain tweets
-leave_tweets <- df%>%
-  filter(label=="Leave")
-remain_tweets <- df%>%
-  filter(label=="Remain")
-
-#check we have captured all the tweets
-nrow(df)==(nrow(leave_tweets) + nrow(remain_tweets))
-@
+\begin{Schunk}
+\begin{Sinput}
+> #seperate dataframes for leave and remain tweets
+> leave_tweets <- df%>%
++   filter(label=="Leave")
+> remain_tweets <- df%>%
++   filter(label=="Remain")
+> #check we have captured all the tweets
+> nrow(df)==(nrow(leave_tweets) + nrow(remain_tweets))
+\end{Sinput}
+\begin{Soutput}
+[1] TRUE
+\end{Soutput}
+\end{Schunk}
 It is important to ensure the dataset is balanced, ie there are a similar number of leave and remain tweets. There are more leave tweets than remain ones, but the difference isn't too great:
-<<>>=
-nrow(leave_tweets)
-nrow(remain_tweets)
-@
+\begin{Schunk}
+\begin{Sinput}
+> nrow(leave_tweets)
+\end{Sinput}
+\begin{Soutput}
+[1] 1254
+\end{Soutput}
+\begin{Sinput}
+> nrow(remain_tweets)
+\end{Sinput}
+\begin{Soutput}
+[1] 1029
+\end{Soutput}
+\end{Schunk}
 
 In order to analyse the text, a corpus will be built. This will be achieved through a dedicated function defined below. This function performs the following pre-processing steps:
 
@@ -421,38 +521,39 @@ In order to analyse the text, a corpus will be built. This will be achieved thro
   \item strip out any whitespace.
 \end{itemize}
 
-<<>>=
-
-buildCorpus <- function(someText){
-  
-  # build a corpus, and specify the source to be character vectors
-  myCorpus <- Corpus(VectorSource(someText))
-
-  myCorpus <- tm_map(myCorpus,
-                     content_transformer(function(x) iconv(x, to='UTF-8',sub='byte')))
-  myCorpus <- tm_map(myCorpus, content_transformer(tolower))
-  # remove punctuation
-  myCorpus <- tm_map(myCorpus, removePunctuation)
-  # remove numbers
-  myCorpus <- tm_map(myCorpus, removeNumbers)
-  # remove URLs
-  removeURL <- function(x) {
-    gsub("http[[:alnum:]]*", "", x)
-  }
-  myCorpus <- tm_map(myCorpus, removeURL)
-  myCorpus <- tm_map(myCorpus, content_transformer(removeURL)) #??
-  # add stopwords
-  myStopwords <- c(stopwords("english"), "RT","rt","EU","eu","brexit","euref")
-  #remove words CONTAINING certain terms
-  myCorpus <- tm_map(myCorpus, content_transformer(gsub), pattern = "*vote*|*leave*|*remain*|*stronger*|*referendum*", replacement = "")
-  # remove stopwords from corpus
-  myCorpus <- tm_map(myCorpus, removeWords, myStopwords)
-  #
-  myCorpus <- tm_map(myCorpus, stripWhitespace)
-  # Return the text corpus
-  return(myCorpus)
-}
-@
+\begin{Schunk}
+\begin{Sinput}
+> buildCorpus <- function(someText){
++   
++   # build a corpus, and specify the source to be character vectors
++   myCorpus <- Corpus(VectorSource(someText))
++ 
++   myCorpus <- tm_map(myCorpus,
++                      content_transformer(function(x) iconv(x, to='UTF-8',sub='byte')))
++   myCorpus <- tm_map(myCorpus, content_transformer(tolower))
++   # remove punctuation
++   myCorpus <- tm_map(myCorpus, removePunctuation)
++   # remove numbers
++   myCorpus <- tm_map(myCorpus, removeNumbers)
++   # remove URLs
++   removeURL <- function(x) {
++     gsub("http[[:alnum:]]*", "", x)
++   }
++   myCorpus <- tm_map(myCorpus, removeURL)
++   myCorpus <- tm_map(myCorpus, content_transformer(removeURL)) #??
++   # add stopwords
++   myStopwords <- c(stopwords("english"), "RT","rt","EU","eu","brexit","euref")
++   #remove words CONTAINING certain terms
++   myCorpus <- tm_map(myCorpus, content_transformer(gsub), pattern = "*vote*|*leave*|*remain*|*stronger*|*referendum*", replacement = "")
++   # remove stopwords from corpus
++   myCorpus <- tm_map(myCorpus, removeWords, myStopwords)
++   #
++   myCorpus <- tm_map(myCorpus, stripWhitespace)
++   # Return the text corpus
++   return(myCorpus)
++ }
+\end{Sinput}
+\end{Schunk}
 In order to explore the tweets, we will construct a document-term matrix. This will be achieved with the following function. The function returns several useful objects:
 \begin{itemize}
   \item the document-term matrix
@@ -461,43 +562,49 @@ In order to explore the tweets, we will construct a document-term matrix. This w
   \item the text corpus, as produced by the 'buildCorpus' function
 \end{itemize}
 
-<<>>=
-#function to build term document matrix, along with other useful objects for analysis
-make_tdm <- function(text_column,minfreq=1){
-  text_column <- iconv(text_column, 'UTF-8', 'ASCII')
-  corpus <- buildCorpus(text_column)
-  # keep for later
-  corpus_copy <- corpus
-  # stem words
-  corpus <- tm_map(corpus, stemDocument)
-  tdm <- TermDocumentMatrix(corpus,control=list(bounds = list(global = c(minfreq,Inf)))) 
-  dtm <- DocumentTermMatrix(corpus,control=list(bounds = list(global = c(minfreq,Inf)))) 
-  m <- as.matrix(tdm)
-  v <- sort(rowSums(m), decreasing = TRUE)
-  d <- data.frame(word = names(v), freq = v)
-  return(list(corpus=corpus,freq_table=d,tdm=tdm , dtm=dtm))
-}
-@
+\begin{Schunk}
+\begin{Sinput}
+> #function to build term document matrix, along with other useful objects for analysis
+> make_tdm <- function(text_column,minfreq=1){
++   text_column <- iconv(text_column, 'UTF-8', 'ASCII')
++   corpus <- buildCorpus(text_column)
++   # keep for later
++   corpus_copy <- corpus
++   # stem words
++   corpus <- tm_map(corpus, stemDocument)
++   tdm <- TermDocumentMatrix(corpus,control=list(bounds = list(global = c(minfreq,Inf)))) 
++   dtm <- DocumentTermMatrix(corpus,control=list(bounds = list(global = c(minfreq,Inf)))) 
++   m <- as.matrix(tdm)
++   v <- sort(rowSums(m), decreasing = TRUE)
++   d <- data.frame(word = names(v), freq = v)
++   return(list(corpus=corpus,freq_table=d,tdm=tdm , dtm=dtm))
++ }
+\end{Sinput}
+\end{Schunk}
 As the 'maketdm' function outputs a word frequency table, we can use it to produce word clouds for the leave and remain tweets. To avoid repeating tasks, the process for making and plotting wordclouds is defined in dedicated functions.
 
-<<>>=
-#make corpuses and tdms from the tweets
-all_tweets <- make_tdm(df$text)
-remain <- make_tdm(remain_tweets$text)
-leave <- make_tdm(leave_tweets$text)
-
-#function to make wordclouds
-make_wordcloud <- function(freq_tab){
-wordcloud(words = freq_tab$word, freq = freq_tab$freq, min.freq = 5,max.words=2000, random.order=FALSE, rot.per=0.2,colors=brewer.pal(8, "Dark2"))
-}
-@
+\begin{Schunk}
+\begin{Sinput}
+> #make corpuses and tdms from the tweets
+> all_tweets <- make_tdm(df$text)
+> remain <- make_tdm(remain_tweets$text)
+> leave <- make_tdm(leave_tweets$text)
+> #function to make wordclouds
+> make_wordcloud <- function(freq_tab){
++ wordcloud(words = freq_tab$word, freq = freq_tab$freq, min.freq = 5,max.words=2000, random.order=FALSE, rot.per=0.2,colors=brewer.pal(8, "Dark2"))
++ }
+\end{Sinput}
+\end{Schunk}
 \begin{figure}[H]
 \begin{center}
 
-<<fig=TRUE>>=
-#make wordclouds from the frequency tables
-make_wordcloud(remain$freq_tab)
-@
+\begin{Schunk}
+\begin{Sinput}
+> #make wordclouds from the frequency tables
+> make_wordcloud(remain$freq_tab)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{submission-029}
 
 \caption {Wordclouds for the remain tweets}
 \label{fig10}
@@ -506,9 +613,12 @@ make_wordcloud(remain$freq_tab)
 
 \begin{figure}[H]
 \begin{center}
-<<fig=TRUE>>=
-make_wordcloud(leave$freq_tab)
-@
+\begin{Schunk}
+\begin{Sinput}
+> make_wordcloud(leave$freq_tab)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{submission-030}
 \caption {Wordclouds for the leave tweets}
 \label{fig11}
 \end {center}
@@ -516,27 +626,32 @@ make_wordcloud(leave$freq_tab)
 
 
 In addition to wordclouds, we can plot the most common words for each class of tweet. This is achieve with the function below:
-<<>>=
-#function to plot wordcounts
-plot_wordcount <- function(freq_tab,title_text){
-  ggplot(head(freq_tab,20), aes(x=word,y=freq))+
-    geom_bar(stat="identity")+
-    labs(title=title_text)+
-    theme(axis.text.x = element_text(angle = 30, hjust = 1))
-}
-a<-plot_wordcount(all_tweets$freq_table,"most common words for all tweets")
-b<-plot_wordcount(remain$freq_table,"most common words for remain tweets")
-c<-plot_wordcount(leave$freq_table,"most common words for leave tweets")
-@
+\begin{Schunk}
+\begin{Sinput}
+> #function to plot wordcounts
+> plot_wordcount <- function(freq_tab,title_text){
++   ggplot(head(freq_tab,20), aes(x=word,y=freq))+
++     geom_bar(stat="identity")+
++     labs(title=title_text)+
++     theme(axis.text.x = element_text(angle = 30, hjust = 1))
++ }
+> a<-plot_wordcount(all_tweets$freq_table,"most common words for all tweets")
+> b<-plot_wordcount(remain$freq_table,"most common words for remain tweets")
+> c<-plot_wordcount(leave$freq_table,"most common words for leave tweets")
+\end{Sinput}
+\end{Schunk}
 The most common word for leave tweeters was 'June', suggesting many of them were focused on reinforcing the timing of the referendum - ensuring people remembered to go out and vote. 'via', 'spread' and 'word' were also common, suggesting attempts to get readers to spread the message. The general theme of many of the common words for leave tweets is of trying to increase virality and therefore increase re-tweets.\\
 The most common word for remain tweeters was 'say', followed by 'stay', 'will' and 'bori[s]'. These give less of an impression of a common theme compared to the leave tweets. It is not surprising that 'Boris' is mentioned a lot by the remain tweeters since he proved to be a particularly divisive figure during the campaigning. However, the lack of common theme for leave tweets may point to an overall less coordinated campaign and may have been a contributary factor to the final result of the referendum (this is just conjecture however - it must be stressed that the dataset forms a small minority of all tweets from the campaign period).\\
 As a humorous aside 'brexitthemovi[e]' was in the top 20 most common words. I don't remember this term from the campaign period but it is interesting to see such a specific term become so popular.
 
 \begin{figure}[H]
 \begin{center}
-<<fig=TRUE>>=
-grid.arrange(a,b,c, nrow = 3)
-@
+\begin{Schunk}
+\begin{Sinput}
+> grid.arrange(a,b,c, nrow = 3)
+\end{Sinput}
+\end{Schunk}
+\includegraphics{submission-032}
 \caption {Wordcounts for the tweets}
 \label{fig10}
 \end {center}
@@ -547,10 +662,13 @@ For remain tweets, non of the associations are particularly strong when compared
 
 \begin{figure}[H]
 \begin{center}
-<<fig=TRUE>>=
-plot(remain$tdm, term = findFreqTerms(remain$tdm, lowfreq = 10), corThreshold = 0.1,
-     weighting = T, main="word association for remain tweets")
-@
+\begin{Schunk}
+\begin{Sinput}
+> plot(remain$tdm, term = findFreqTerms(remain$tdm, lowfreq = 10), corThreshold = 0.1,
++      weighting = T, main="word association for remain tweets")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{submission-033}
 \caption {Word association for remain tweets}
 \label{fig12}
 \end {center}
@@ -561,10 +679,13 @@ The leave tweets on the other hand show some strongly associated words. As suspe
 Finally 'Cameron', 'Send' and 'Speech' were strongly associated. The reason for this is a little more difficult to ascertain but may relate to one of Cameron's campaign speeches or debates which generally proved to be divisive at the time.
 \begin{figure}[H]
 \begin{center}
-<<fig=TRUE>>=
-plot(leave$tdm, term = findFreqTerms(leave$tdm, lowfreq = 15), corThreshold = 0.1,
-     weighting = T, main="word association for leave tweets")
-@
+\begin{Schunk}
+\begin{Sinput}
+> plot(leave$tdm, term = findFreqTerms(leave$tdm, lowfreq = 15), corThreshold = 0.1,
++      weighting = T, main="word association for leave tweets")
+\end{Sinput}
+\end{Schunk}
+\includegraphics{submission-034}
 \caption {Word association for leave tweets}
 \label{fig12}
 \end {center}
@@ -574,52 +695,119 @@ plot(leave$tdm, term = findFreqTerms(leave$tdm, lowfreq = 15), corThreshold = 0.
 \subsection{Text Classification}
 Most of the preprocessing for text classification is performed within the functions defined earlier. First we create a document-term matrix from all the tweets. We only consider words with a minimum frequency of 10. 
 
-<<>>=
-#transpose the dtm to get word count for each tweet
-dtm<-make_tdm(df$text,10)
-dtm<-dtm$dtm
-
-#checknumber of columns used for model
-ncol(as.matrix(dtm))
-@
+\begin{Schunk}
+\begin{Sinput}
+> #transpose the dtm to get word count for each tweet
+> dtm<-make_tdm(df$text,10)
+> dtm<-dtm$dtm
+> #checknumber of columns used for model
+> ncol(as.matrix(dtm))
+\end{Sinput}
+\begin{Soutput}
+[1] 87
+\end{Soutput}
+\end{Schunk}
 Using the RTextTools package, the tweets are saved in a container-type object. This automatically performs a train-test split. In this case the training set forms 70\% of the data:
-<<>>=
-container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
-
-@
+\begin{Schunk}
+\begin{Sinput}
+> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
+> 
+\end{Sinput}
+\end{Schunk}
 A number of classification models are trained on the data, and evaluated on the test set. RTextTools automatically creates results and analytics objects which we can use to evaluate model performance:
-<<>>=
-#train some models and analyse the results
-models <- train_models(container,algorithms=c("SVM","BAGGING","BOOSTING","RF"))
-results <- classify_models(container, models) #can use for conf matrix
-#analytics <- create_analytics(container, results)
-@
+\begin{Schunk}
+\begin{Sinput}
+> #train some models and analyse the results
+> models <- train_models(container,algorithms=c("SVM","BAGGING","BOOSTING","RF"))
+> results <- classify_models(container, models) #can use for conf matrix
+> #analytics <- create_analytics(container, results)
+\end{Sinput}
+\end{Schunk}
 Looking at confusion matrices for each of the model types we get the following:
-<<>>=
-print("SVM")
-table(predicted=results$SVM_LABEL,actual=container@testing_codes)
-print("Bagging")
-table(predicted=results$BAGGING_LABEL,actual=container@testing_codes)
-print("Boosting")
-table(predicted=results$LOGITBOOST_LABEL,actual=container@testing_codes)
-print("Random Forest")
-table(predicted=results$FORESTS_LABEL,actual=container@testing_codes)
-@
+\begin{Schunk}
+\begin{Sinput}
+> print("SVM")
+\end{Sinput}
+\begin{Soutput}
+[1] "SVM"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$SVM_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    379    270
+   Remain    15     21
+\end{Soutput}
+\begin{Sinput}
+> print("Bagging")
+\end{Sinput}
+\begin{Soutput}
+[1] "Bagging"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$BAGGING_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    100     41
+   Remain   294    250
+\end{Soutput}
+\begin{Sinput}
+> print("Boosting")
+\end{Sinput}
+\begin{Soutput}
+[1] "Boosting"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$LOGITBOOST_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    383    272
+   Remain    11     19
+\end{Soutput}
+\begin{Sinput}
+> print("Random Forest")
+\end{Sinput}
+\begin{Soutput}
+[1] "Random Forest"
+\end{Soutput}
+\begin{Sinput}
+> table(predicted=results$FORESTS_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\begin{Soutput}
+         actual
+predicted Leave Remain
+   Leave    105     44
+   Remain   289    247
+\end{Soutput}
+\end{Schunk}
 None of these are particularly impressive. Let's take the model with the highest accuracy (the SVM) and tune the hyperparameters. The minimum term frequency is also reduced to incorporate more features into the model training.:
-<<>>=
-dtm<-make_tdm(df$text,2)
-dtm<-dtm$dtm
-
-container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
-
-library(e1071)
-tuned_svm <- tune.svm(x=container@training_matrix, y=container@training_codes, 
-                      validation.x = container@classification_matrix, validation.y=container@testing_codes,
-                      gamma=10^(-6:0) , cost=10^(-1:3))
-
-print('model accuracy = ' )
-1-tuned_svm$best.performance
-@
+\begin{Schunk}
+\begin{Sinput}
+> dtm<-make_tdm(df$text,2)
+> dtm<-dtm$dtm
+> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
+> library(e1071)
+> tuned_svm <- tune.svm(x=container@training_matrix, y=container@training_codes, 
++                       validation.x = container@classification_matrix, validation.y=container@testing_codes,
++                       gamma=10^(-6:0) , cost=10^(-1:3))
+> print('model accuracy = ' )
+\end{Sinput}
+\begin{Soutput}
+[1] "model accuracy = "
+\end{Soutput}
+\begin{Sinput}
+> 1-tuned_svm$best.performance
+\end{Sinput}
+\begin{Soutput}
+[1] 0.5700943
+\end{Soutput}
+\end{Schunk}
 
 
 
