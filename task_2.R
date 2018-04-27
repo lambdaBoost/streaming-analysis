@@ -128,3 +128,47 @@ AUC <- performance(prediction(test_probs, actual_probs), "auc")@y.values[[1]]
 varImps <- varImp(best_model)
 colnames(varImps) <- c('importance'," ")
 varImps <- varImps[order(-varImps$importance),] 
+varImps$names <- rownames(varImps)
+
+#lock in factor levels to maintain order
+varImps$names <- factor(varImps$names, levels = varImps$names)
+
+ggplot(varImps[1:20,],aes(x=names,y=importance))+
+  geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle = 25, hjust = 1))+
+  labs(title="variable importance for Random Forest Model")
+
+
+#check variable balancing
+numeric_df <- sapply(df,function(x){as.numeric(as.character(x))})%>%
+  as.data.frame()%>%
+  select(-seq(1,4))
+
+#get number of instances of each hero for home team
+home_team_heros <- ifelse(numeric_df==1,1,0)%>%
+  colSums()%>%
+  as.data.frame()
+
+home_team_heros$name <- row.names(home_team_heros)
+
+ggplot(home_team_heros,aes(x=name,y=.))+
+  geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  labs(title="number of times each hero was chosen by the home team")+
+  xlab("hero name")+
+  ylab("number of games the hero was picked")
+
+
+#get number of occurances for each away team hero
+away_team_heros <- ifelse(numeric_df==-1,1,0)%>%
+  colSums()%>%
+  as.data.frame()
+
+away_team_heros$name <- row.names(away_team_heros)
+
+ggplot(away_team_heros,aes(x=name,y=.))+
+  geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
+  labs(title="number of times each hero was chosen by the away team")+
+  xlab("hero name")+
+  ylab("number of games the hero was picked")

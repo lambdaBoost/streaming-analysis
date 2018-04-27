@@ -65,7 +65,7 @@
 
 \section{Research}
 
-The paper that was chosen for this work is \cite{Liu:2017:ERI:3097983.3098049}. The authors attempted to improve methods for classifying encrypted messaging traffic through streaming methods. Below is a review of this paper that includes problem statement, related work and methods applied.\\
+The paper that was chosen for this work is \textit{Effective and Real-time In-App Activity Analysis in Encrypted Internet Traffic Streams} \cite{Liu:2017:ERI:3097983.3098049}. The authors attempted to improve methods for classifying encrypted messaging traffic through streaming methods. Below is a review of this paper that includes problem statement, related work and methods applied.\\
 
 
 \subsection{Problem Statement}
@@ -73,7 +73,7 @@ The paper that was chosen for this work is \cite{Liu:2017:ERI:3097983.3098049}. 
 The methods presented in the reviewed paper attempt to address the growing issue of traffic analysis for messaging apps on mobile devices. Mobile and internet providers require the capability to classify traffic in order to tailor services to users and to manage load on the network. However, the rise of end to end encryption makes classification of traffic an increasingly difficult problem. It is possible to first segment and then classify encrypted traffic, however past attempts were relativley slow due to a lengthy feature extraction process. They were also intensive with respect to storage and memory due to the need to store raw packet data. The variable length of packets also affected classification accuracy. By running the clustering and classification of actual data in a streaming manner and iterativley select features from offline training data, this study sought to both decrease runtime and increase accuracy.
 
 \subsection{Relevant Work}
-The paper acknowleges previous studies \emph{Haffner:2005:AAC:1080173.1080183} \cite{4669733}  \emph{1550864} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \cite{5693957}, including one by the same team \cite{7377112}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
+The paper acknowleges previous studies \cite{Haffner:2005:AAC:1080173.1080183} \cite{4669733}  \cite{1550864} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \cite{5693957}, including one by the same team \cite{7377112}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
 
 
 
@@ -91,16 +91,17 @@ The entire model, including the streaming section, was then tested against a num
 The model presented was able to classify encrypted messaging traffic with a higher accuracy than any of the previously tested models. By streaming the testing stage, and pre-seleting the most important features, classification speed was greatly increased. This increases the viability of the model for real-world applications where real-time analysis of large volumes of messaging data is a requirement.
 For the offline classifier, it should be noted that the result does not appear to be statistically significant from the basline models given the figures provides as the confidence intervals are seen to overlap. The authors do not state the confidence level used so it is not possible to infer the true significance of the result. Likewise,  it is stated that the result for the stream classifier was 'significantly' higher but it is unclear whether the authors are inferring statistical significance as there is no mention of repeatability and no confidence intervals are shown on the overall results plot.
 
-
+\pagebreak
 
 
 \section {Data Streams}
 
-The dataset analysed here is the Dota 2 game results dataset, available at\\ https://archive.ics.uci.edu/ml/datasets/Dota2+Games+Results
+The dataset analysed here is the Dota 2 game results dataset, available at\\
+\url{ https://archive.ics.uci.edu/ml/datasets/Dota2+Games+Results}
 
 The data is taken from the popular online multiplayer game Dota 2. This game is played between two teams of five players each. Each individual player plays as a 'hero' (selected by the player themselves). The two teams then compete to defend their respective bases. The first team to destroy the others base wins.\\
 
-The dataset was chosen because Dota 2 is widely seen as a challenging problem in the field of AI. Following the success of Alphago at the boardgame go in 2016, Dota 2 is seen by many as the next challenge as no AI has yet been able to beat a leading human team. As with any well designed computer game, balancing is key. In this case, it is a requirement that any given team of heroes should perform equally well as any other team (given players of equal skill). With over 100 different heroes available, each with their own strengths and weaknesses, balancing is a challenging problem for the game design team. If any given set of heros can be shown to have an advantage over another set, this could be used by human, or AI, players to gain an advantage over the other team. This analysis, therefore doesn't seek to predict whether a team will win with a high degree of accuracy (if that were possible, Dota 2 would be a poorly balanced and unsuccessful game); rather we seek to find any marginal advantage beter than random guessing.\\
+The dataset was chosen because Dota 2 is widely seen as a challenging problem in the field of AI \cite{7828640}. Following the success of Alphago at the boardgame go in 2016 \cite{8295075}, Dota 2 is seen by many as the next challenge as no AI has yet been able to beat a leading human team. As with any well designed computer game, balancing is key. In this case, it is a requirement that any given team of heroes should perform equally well as any other team (given players of equal skill). With over 100 different heroes available, each with their own strengths and weaknesses, balancing is a challenging problem for the game design team. If any given set of heros can be shown to have an advantage over another set, this could be used by human, or AI, players to gain an advantage over the other team. This analysis, therefore doesn't seek to predict whether a team will win with a high degree of accuracy (if that were possible, Dota 2 would be a poorly balanced and unsuccessful game); rather we seek to find any marginal advantage beter than random guessing.\\
 
 
 With 116 dimensions, the dataset is large enough to demonstrate the potential benefits of streaming, but small enough to classify in a non-streaming manner on a single machine. 
@@ -207,7 +208,7 @@ As discussed above, some preprocessing is required. First, we convert all numeri
 \end{Sinput}
 \end{Schunk}
 
-The column names are added in two stages. The first four columns are named manually as specified in teh dataset description.\\
+The column names are added in two stages. The first four columns are named manually as specified in the dataset description.\\
 The remaining columns represent the individual heros. The column names are extracted from the .json file supplied with the dataset:
 \begin{Schunk}
 \begin{Sinput}
@@ -234,7 +235,69 @@ One column has the same value for every entry. This was noticed during the analy
 \end{Schunk}
 
 
+To visualise the dataset a little more clearly, the number of times each hero was picked by a team can be plotted. This gives us an idea of how popular each hero is, and may explain any particularly important variables later on. It also gives us a good indication of the general 'spread' of the data and whether the 'home' and 'away' teams tend to behave similarly. We require similar behaviour between the teams to ensure there is no bias in the results:
 
+\begin{Schunk}
+\begin{Sinput}
+>#check variable balancing
+>numeric_df <- sapply(df,function(x){as.numeric(as.character(x))})%>%
++  as.data.frame()%>%
++  select(-seq(1,4))
+
+>#get number of instances of each hero for home team
+>home_team_heros <- ifelse(numeric_df==1,1,0)%>%
++  colSums()%>%
++  as.data.frame()
+
+>home_team_heros$name <- row.names(home_team_heros)
+
+>ggplot(home_team_heros,aes(x=name,y=.))+
++  geom_bar(stat="identity")+
++  theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
++  labs(title="number of times each hero was chosen by the home team")+
++  xlab("hero name")+
++  ylab("number of games the hero was picked")
+
+
+>#get number of occurances for each away team hero
+>away_team_heros <- ifelse(numeric_df==-1,1,0)%>%
++  colSums()%>%
++  as.data.frame()
+
+> away_team_heros$name <- row.names(away_team_heros)
+
+>ggplot(away_team_heros,aes(x=name,y=.))+
++  geom_bar(stat="identity")+
++ theme(axis.text.x = element_text(angle = 90, hjust = 1,size=7))+
++  labs(title="number of times each hero was chosen by the away team")+
++  xlab("hero name")+
++  ylab("number of games the hero was picked")
+\end{Sinput}
+\end{Schunk}
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{home_team}
+\caption {Number of matches in which the home team picked each hero}
+\label{home}
+\end {center}
+\end {figure}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{away_team}
+\caption {Number of matches in which the away team picked each hero}
+\label{away}
+\end {center}
+\end {figure}
+
+Inspecting the two plots above, there are two noteable features in the dataset:
+
+\begin{itemize}
+\item Some heros are extremely popular while others are barely used. The most popular heros will be considered when studying variable importance, since a high variable importance corresponding with a commonly used hero doesn't tell us much about underlying trends in the data.
+\item The distribution of hero choice is almost identical for the home and away teams. This suggests that teams were indeed chosen randomly and there was no skill or behavioural bias. This means any trends identified in the data are likely to be due to the game design itself rather than a skill disparity between teams.
+\end{itemize}
 
 \subsection{Build Classifier}
 The dataset is now split into training, testing and validation sets. 60\% of the data is used for training with 20\% used for testing and validation respectivley:
@@ -252,7 +315,7 @@ The dataset is now split into training, testing and validation sets. 60\% of the
 A random forest classifier was used to classify the data. This model was chosen for two main reasons:
 \begin{itemize}
   \item With only 3 main tuneable parameters, random forests often require less tuning than other model types.
-  \item For high dimensional data, a SVM would typically perform well, however with over 100000 rows in the dataset, runtime would probably be significant. Random forests typically also perform well on high dimensional data.
+  \item For high dimensional data, a SVM would typically perform well, however with over 100000 rows in the dataset, runtime would probably be significant. Random forests typically also perform well on high dimensional data. \cite{GENUER201728}
 \end{itemize}
 
 
@@ -273,9 +336,10 @@ Here, a parameter grid is defined and stored as a dataframe to be accessed as ea
 \end{Schunk}
 Now, we train up a random forest on the training set for each combination of parameters in the parameter grid. \\
 For each combination of parameters, the resulting model is tested on the evaluation set and the accuracy calculated.
-The resulting accuracy from each parameter combination is saved in the 'Accuracy' column of the parameter grid table:
+The resulting accuracy from each parameter combination is saved in the 'Accuracy' column of the parameter grid table \textit{full output not shown here for brevity}:
 \begin{Schunk}
 \begin{Sinput}
+>set.seed(57)
 > for (i in c(1:nrow(PG))){
 +   mtry <- PG[i, "mtry"]
 +   nodesize <- PG[i, "nodesize"]
@@ -289,20 +353,7 @@ The resulting accuracy from each parameter combination is saved in the 'Accuracy
 +   print(i)
 + }
 \end{Sinput}
-\begin{Soutput}
-[1] 1
-[1] 2
-[1] 3
-[1] 4
-[1] 5
-[1] 6
-[1] 7
-[1] 8
-[1] 9
-[1] 10
-[1] 11
-[1] 12
-\end{Soutput}
+
 \end{Schunk}
 
 The parameters which produced the best model are selected and that model is evaluated on the testing set to give a final accuracy for the random forest classifier.
@@ -314,6 +365,7 @@ The parameters which produced the best model are selected and that model is eval
 > mtry <- PG[1, "mtry"]
 > nodesize <- PG[1, "nodesize"]
 > ntree <- PG[1, "ntree"]
+>set.seed(57)
 > best_model <- randomForest(formula(df_train) , data=df_train, mtry=mtry, ntree=ntree, nodesize=nodesize , importance=T)
 > predictions <- predict(temp_model , df_valid)
 > confusionMatrix(predictions,df_valid$won)
@@ -346,9 +398,55 @@ Prediction   -1    1
        'Positive' Class : -1              
 \end{Soutput}
 \end{Schunk}
-TODO - discuss the results
-    - variable importances
-    -data diagram
+
+The final accuracy of \textbf{56.7\%} is a reasonable result since an ideal game should be completely unpredictable (ie accuracy=50\%). Of course, repeatibility is a concern - this result could simply have occurred due to chance. The next section does address this by demonstrating a classifier which continually improves as more data is added.\\
+
+The ROC curve for the predictions is plotted below, with an \textbf{AUC of 0.579}. Again, this is far from a perfect classifier but does suggest some bias in the game which could potentially be exploited by a sufficiently well-trained AI:
+
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{roc}
+\caption {ROC curve for Random Forest classifier}
+\label{fig02}
+\end {center}
+\end {figure}
+
+
+The variable importances are also of interest. In this case, each variable represents whether a particular character was used by the team, or the opposing team. So, plotting the importance of each character gives insights into any exploits that could be used to beat a team (ie by selecting or not selecting that hero). The realtive importances of the top 2 most important heroes are plotted below:
+
+\begin{Schunk}
+\begin{Sinput}
+>#save variable importances
+>varImps <- varImp(best_model)
+>colnames(varImps) <- c('importance'," ")
+>varImps <- varImps[order(-varImps$importance),] 
+>varImps$names <- rownames(varImps)
+
+>#lock in factor levels to maintain order
+>varImps$names <- factor(varImps$names, levels = varImps$names)
+
+>ggplot(varImps[1:20,],aes(x=names,y=importance))+
++  geom_bar(stat="identity")+
++  theme(axis.text.x = element_text(angle = 25, hjust = 1))+
++  labs(title="variable importance for Random Forest Model")
+
+\end{Sinput}
+\end{Schunk}
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics{vis}
+\caption {variable importances of top 20 most important hero choices for Random Forest classifier}
+\label{fig002}
+\end {center}
+\end {figure}
+
+The variable importances give an interesting insight into how the model predicted a win/no win for the home team. Relative importance is not equal for all heroes - it declines steadily for the top 20. However, one hero in particular - 'enchantress', is dominant. Whether a team selects this hero or not has more than double the relative bearing on the final result than any other hero choice. Given additional time and resources it may be possible to learn more about any possible exploits that could be derived from this information. Presumably this hero performs disproportionately well or poorly against other specific heros and further analysis may be able to reveal why this is so.\\
+
+It should also be noted that the 'enchantress' hero was not particularly popular or unpopular (\ref{home}), which further suggests this hero is of high importance.
+
+
   
 
 \subsection{Build Stream Classifier}
@@ -371,7 +469,7 @@ A validation set will not be used in this case since the aim is to demonstrate a
 > 
 \end{Sinput}
 \end{Schunk}
-Several classifier types were tried but that which gave the quickest improvement in accuracy was the 'Ozaboost' classifier. This is a boosted model created specifically for streaming. A Hoeffding tree is used as the base learner.
+Several classifier types were tried but that which gave the quickest improvement in accuracy was the 'Ozaboost' classifier. This is a boosted model created specifically for streaming \cite{6934280}. A Hoeffding tree is used as the base learner.
 \begin{Schunk}
 \begin{Sinput}
 > mymodel <- OzaBoost(baseLearner="trees.HoeffdingTree", ensemblesize=30)
@@ -455,6 +553,7 @@ Now the model is incrementally trained and tested by feeding in chunks sequentia
 \begin{Schunk}
 \begin{Sinput}
 >#train over the stream
+>set.seed(57)
 >for (i in 1:turns){
 >  # next sample
 > sample <- dfStream$get_points(dfStream, n = chunk,
@@ -481,7 +580,7 @@ Now the model is incrementally trained and tested by feeding in chunks sequentia
 
 The final accuracy achieved was 58.1\%, which is actually higher than for the best non-streaming model. This may be due to the use of a different model type which performed better on the given dataset. This is also a reasonably high accuracy for this problem - as stated earlier, anything above 50\% is considered a positive result since an ideal game should be perfectly balanced.
 
-The improvement in accuracy with training/testing iteration is plotted below. We see that the classifier was rather erratic in accuracy as more data was presented to it. The general trend was for accuracy to steadily increase, although peak accuracy was reached aroumd chunk 350, suggesting only about half the data was required to fit a model. However, accuracy was increasing towards the end of the streaming process, so a larger dataset may have given even better results.
+The improvement in accuracy with training/testing iteration is plotted in figure \ref{fig2}. We see that the classifier was rather erratic in accuracy as more data was presented to it. The general trend was for accuracy to steadily increase, although peak accuracy was reached aroumd chunk 350, suggesting only about half the data was required to fit a model. However, accuracy was increasing towards the end of the streaming process, so a larger dataset may have given even better results.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -504,6 +603,8 @@ The improvement in accuracy with training/testing iteration is plotted below. We
 \label{fig2}
 \end {center}
 \end {figure}
+
+\pagebreak
 
 \section {Text Classification}
 
@@ -643,7 +744,8 @@ As the 'maketdm' function outputs a word frequency table, we can use it to produ
 > leave <- make_tdm(leave_tweets$text)
 > #function to make wordclouds
 > make_wordcloud <- function(freq_tab){
-+ wordcloud(words = freq_tab$word, freq = freq_tab$freq, min.freq = 5,max.words=2000, random.order=FALSE, rot.per=0.2,colors=brewer.pal(8, "Dark2"))
++ wordcloud(words = freq_tab$word, freq = freq_tab$freq, min.freq = 5,max.words=2000,
++ random.order=FALSE, rot.per=0.2,colors=brewer.pal(8, "Dark2"))
 + }
 \end{Sinput}
 \end{Schunk}
@@ -692,7 +794,7 @@ In addition to wordclouds, we can plot the most common words for each class of t
 > c<-plot_wordcount(leave$freq_table,"most common words for leave tweets")
 \end{Sinput}
 \end{Schunk}
-The most common word for leave tweeters was 'June', suggesting many of them were focused on reinforcing the timing of the referendum - ensuring people remembered to go out and vote. 'via', 'spread' and 'word' were also common, suggesting attempts to get readers to spread the message. The general theme of many of the common words for leave tweets is of trying to increase virality and therefore increase re-tweets.\\
+Referring to figure \ref{fig10}, the most common word for leave tweeters was 'June', suggesting many of them were focused on reinforcing the timing of the referendum - ensuring people remembered to go out and vote. 'via', 'spread' and 'word' were also common, suggesting attempts to get readers to spread the message. The general theme of many of the common words for leave tweets is of trying to increase virality and therefore increase re-tweets.\\
 The most common word for remain tweeters was 'say', followed by 'stay', 'will' and 'bori[s]'. These give less of an impression of a common theme compared to the leave tweets. It is not surprising that 'Boris' is mentioned a lot by the remain tweeters since he proved to be a particularly divisive figure during the campaigning. However, the lack of common theme for leave tweets may point to an overall less coordinated campaign and may have been a contributary factor to the final result of the referendum (this is just conjecture however - it must be stressed that the dataset forms a small minority of all tweets from the campaign period).\\
 As a humorous aside 'brexitthemovi[e]' was in the top 20 most common words. I don't remember this term from the campaign period but it is interesting to see such a specific term become so popular.
 
@@ -710,7 +812,7 @@ As a humorous aside 'brexitthemovi[e]' was in the top 20 most common words. I do
 \end {figure}
 
 Plotting word associations gives an impression of word usage and gives more insight into common themes between tweets for each class. This is achieved using the build in plotting function for the term-document matrix.\\
-For remain tweets, non of the associations are particularly strong when compared to the leave tweets. Of the associations that are present, many seem to convey a negative message such as 'people don't like', or 'don't know'. There doesn't seem to be much evidence of a branded campaign or attempts to spread the message to a wider population.
+For remain tweets (Figure \ref{fig12}), non of the associations are particularly strong when compared to the leave tweets. Of the associations that are present, many seem to convey a negative message such as 'people don't like', or 'don't know'. There doesn't seem to be much evidence of a branded campaign or attempts to spread the message to a wider population.
 
 \begin{figure}[H]
 \begin{center}
@@ -726,7 +828,7 @@ For remain tweets, non of the associations are particularly strong when compared
 \end {center}
 \end {figure}
 
-The leave tweets on the other hand show some strongly associated words. As suspected previously 'spread', 'word' and 'via' are strongly associated. This suggests a coordinated effort to increase virality of these tweets and make them more visible. 
+The leave tweets on the other hand (Figure \ref{fig13}) show some strongly associated words. As suspected previously 'spread', 'word' and 'via' are strongly associated. This suggests a coordinated effort to increase virality of these tweets and make them more visible. 
 'Take back control' is another strong grouping. This is a strong and positivley phrased phrase  which would be likely to grab and hold readers' attention (whether we agree with it or not). This contrasts with the negative phrases from the remain tweets which, rather than focusing on why readers should vote remain, seemed more to focus on why readers should \emph{not} vote leave.
 Finally 'Cameron', 'Send' and 'Speech' were strongly associated. The reason for this is a little more difficult to ascertain but may relate to one of Cameron's campaign speeches or debates which generally proved to be divisive at the time.
 \begin{figure}[H]
@@ -739,13 +841,13 @@ Finally 'Cameron', 'Send' and 'Speech' were strongly associated. The reason for 
 \end{Schunk}
 \includegraphics{submission-034}
 \caption {Word association for leave tweets}
-\label{fig12}
+\label{fig13}
 \end {center}
 \end {figure}
 
 
 \subsection{Text Classification}
-Most of the preprocessing for text classification is performed within the functions defined earlier. First we create a document-term matrix from all the tweets. We only consider words with a minimum frequency of 10. 
+Most of the preprocessing for text classification is performed within the functions defined earlier. First we create a document-term matrix from all the tweets. We only consider words with a minimum frequency of 10. This removes a significant amount of data, since only 87 unique words are considered.
 
 \begin{Schunk}
 \begin{Sinput}
@@ -762,20 +864,25 @@ Most of the preprocessing for text classification is performed within the functi
 Using the RTextTools package, the tweets are saved in a container-type object. This automatically performs a train-test split. In this case the training set forms 70\% of the data:
 \begin{Schunk}
 \begin{Sinput}
-> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
+> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)),
++	 testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
 > 
 \end{Sinput}
 \end{Schunk}
-A number of classification models are trained on the data, and evaluated on the test set. RTextTools automatically creates results and analytics objects which we can use to evaluate model performance:
+A number of classification models are trained on the data, and evaluated on the test set. RTextTools automatically creates results objects which we can use to evaluate model performance:
 \begin{Schunk}
 \begin{Sinput}
 > #train some models and analyse the results
+>set.seed(57)
 > models <- train_models(container,algorithms=c("SVM","BAGGING","BOOSTING","RF"))
 > results <- classify_models(container, models) #can use for conf matrix
-> #analytics <- create_analytics(container, results)
+
 \end{Sinput}
 \end{Schunk}
 Looking at confusion matrices for each of the model types we get the following:
+
+\begin{figure}[H]
+\begin{center}
 \begin{Schunk}
 \begin{Sinput}
 > print("SVM")
@@ -838,15 +945,27 @@ predicted Leave Remain
    Remain   289    247
 \end{Soutput}
 \end{Schunk}
-None of these are particularly impressive. Let's take the model with the highest accuracy (the SVM) and tune the hyperparameters. The minimum term frequency is also reduced to incorporate more features into the model training.:
+
+\caption {Confusion matrices for various text classification methods}
+\label{fig15}
+\end {center}
+\end {figure}
+
+None of the cassification results are particularly impressive (Figure \ref{fig15} shows confusion matrices for the four model types tried). Let's take the model with the highest accuracy (the SVM with an accuracy of \textbf{58.4\%} ) and tune the hyperparameters. It should also be noted that the sensitivity for this model type is low since it tends to predict most tweets as type 'Leave'.
+
+ The minimum term frequency is also reduced to incorporate more features into the model training.:
 \begin{Schunk}
 \begin{Sinput}
+>#make minimum term frequency 2
 > dtm<-make_tdm(df$text,2)
 > dtm<-dtm$dtm
-> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
+>set.seed(57)
+> container <- create_container(dtm, df$label,trainSize=1:round(0.7*nrow(df)), 
++		testSize=(round(0.7*nrow(df))+1):nrow(df),virgin=TRUE)
 > library(e1071)
 > tuned_svm <- tune.svm(x=container@training_matrix, y=container@training_codes, 
-+                       validation.x = container@classification_matrix, validation.y=container@testing_codes,
++                       validation.x = container@classification_matrix,
++		 validation.y=container@testing_codes,
 +                       gamma=10^(-6:0) , cost=10^(-1:3))
 > print('model accuracy = ' )
 \end{Sinput}
@@ -861,18 +980,19 @@ None of these are particularly impressive. Let's take the model with the highest
 \end{Soutput}
 \end{Schunk}
 
+With a final accuracy of \textbf{57.\%}, the tuned model performed \textit{worse} than the initial training run. This is somewhat unexpected and a little puzzling. Several permutations of model type and minimum term frequency were tried and none achieved an accuracy improvement over the original model.\\
 
 
-
-\section{Reproducing Results}
-
-You don't need to have a section called \textbf{Reproducing Results}, your report itself will be the answer for this section. 
+\subsection{Conclusions}
+The reason for the poor model accuracy may simply be the size of the dataset. With only ~1000 instances for each class, the dataset was relativley small. For text-based data, more instances would normally be used to fit a reliable model. The streaming methods explored in section 2 could be used to train up future models, by pulling data from the Twitter API (or by using a web-scraping tool), allowing for a much larger dataset without memory or storage limitations. It is also likely that altering the preprocessing steps may have given better accuracy. This study was somewhat conservative in removing common words so certain words used frequently in both classes may have added noise to the data, making the classes indistinguishable.
 
 
 % Clear the page and starte a new page for references 
 
 \clearpage
 % The title for the reference section is called References 
+
+\pagebreak
 
 \section{References}\label{pubs}
 

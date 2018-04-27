@@ -107,3 +107,12 @@ for (i in 1:turns){
 #plot accuracies for each chunk
 plot(accuracies,type='l',col='red',
      xlab="Chunk Number",ylab="Accuracy",frame=FALSE)
+
+
+accuracies <- as.data.frame(accuracies)
+ggplot(accuracies,aes(y=accuracies,x=seq(1,length(accuracies))))+
+  geom_line(col="blue",alpha=0.7)+
+  geom_smooth(method="loess",col="red")+
+  labs(title="accuracy of streaming classifier",subtitle="trendline shown in red")+
+  xlab("chunk")+
+  ylab("accuracy")

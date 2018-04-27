@@ -64,16 +64,15 @@
 
 \section{Research}
 
-[your text goes here]
-The paper that was chosen for this work is \cite{6779381}. The authors provided a full review on different streaming algorithms and methos that handle concept drfit?. Below is a review of this paper that includes problem statement, related work and methods applied.\\
+The paper that was chosen for this work is \cite{Liu:2017:ERI:3097983.3098049}. The authors attempted to improve methods for classifying encrypted messaging traffic through streaming methods. Below is a review of this paper that includes problem statement, related work and methods applied.\\
 
-\textcolor{blue}{\textit{Notice how I cited the paper, and how does it appear in the document, to do so, you need to have a file in your working director (references.bib), this file simply contains the bibtext items for the papers you chose. These BibTex items are often avaiable to download from publishers website, see Figure~\ref{fig1}}}
+
 \subsection{Problem Statement}
 
 The methods presented in the reviewed paper attempt to address the growing issue of traffic analysis for messaging apps on mobile devices. Mobile and internet providers require the capability to classify traffic in order to tailor services to users and to manage load on the network. However, the rise of end to end encryption makes classification of traffic an increasingly difficult problem. It is possible to first segment and then classify encrypted traffic, however past attempts were relativley slow due to a lengthy feature extraction process. They were also intensive with respect to storage and memory due to the need to store raw packet data. The variable length of packets also affected classification accuracy. By running the clustering and classification of actual data in a streaming manner and iterativley select features from offline training data, this study sought to both decrease runtime and increase accuracy.
 
 \subsection{Relevant Work}
-The paper acknowleges previous studies \emph{Haffner2005} \emph{Raahemi2008}  \emph{Zander2005} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \emph{Huanhuan2005} \emph{Fu2016}, including one by the same team \emph{Fu2016}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
+The paper acknowleges previous studies \emph{Haffner:2005:AAC:1080173.1080183} \cite{4669733}  \emph{1550864} which were able to classify messaging data through the port number, protocol signature and protocol type. However, these methods are not applicable for encrypted data. Later studies \cite{5693957}, including one by the same team \cite{7377112}, were able to classify encrypted data using machine learning by segmenting traffic and then classifying it. These attempts suffered from low relative accuracy and speed. 
 
 
 
@@ -91,7 +90,6 @@ The entire model, including the streaming section, was then tested against a num
 The model presented was able to classify encrypted messaging traffic with a higher accuracy than any of the previously tested models. By streaming the testing stage, and pre-seleting the most important features, classification speed was greatly increased. This increases the viability of the model for real-world applications where real-time analysis of large volumes of messaging data is a requirement.
 For the offline classifier, it should be noted that the result does not appear to be statistically significant from the basline models given the figures provides as the confidence intervals are seen to overlap. The authors do not state the confidence level used so it is not possible to infer the true significance of the result. Likewise,  it is stated that the result for the stream classifier was 'significantly' higher but it is unclear whether the authors are inferring statistical significance as there is no mention of repeatability and no confidence intervals are shown on the overall results plot.
 
--TODO citations
 
 
 \section {Data Streams}
@@ -624,9 +622,6 @@ print('model accuracy = ' )
 
 
 
-\section{Reproducing Results}
-
-You don't need to have a section called \textbf{Reproducing Results}, your report itself will be the answer for this section. 
 
 
 % Clear the page and starte a new page for references 
