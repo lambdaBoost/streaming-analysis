@@ -925,6 +925,7 @@ Most of the preprocessing for text classification is performed within the functi
 \hspace{1cm} 
 \begin{Schunk}
 \begin{Sinput}
+
 > #transpose the dtm to get word count for each tweet
 > dtm<-make_tdm(df$text,10)
 > dtm<-dtm$dtm
@@ -959,64 +960,54 @@ A number of classification models are trained on the data, and evaluated on the 
 \end{Schunk}
 \hspace{1cm} 
 Looking at confusion matrices for each of the model types we get the following:
+\hspace{1cm} 
+\begin{Schunk}
+\begin{Sinput}
+
+> table(predicted=results$SVM_LABEL,actual=container@testing_codes)
+> table(predicted=results$BAGGING_LABEL,actual=container@testing_codes)
+> table(predicted=results$LOGITBOOST_LABEL,actual=container@testing_codes)
+> table(predicted=results$FORESTS_LABEL,actual=container@testing_codes)
+\end{Sinput}
+\end{Schunk}
+
+\hspace{1cm} 
 
 \begin{figure}[H]
 \begin{center}
 \begin{Schunk}
-\begin{Sinput}
-> print("SVM")
-\end{Sinput}
+
 \begin{Soutput}
 [1] "SVM"
 \end{Soutput}
-\begin{Sinput}
-> table(predicted=results$SVM_LABEL,actual=container@testing_codes)
-\end{Sinput}
 \begin{Soutput}
          actual
 predicted Leave Remain
    Leave    379    270
    Remain    15     21
 \end{Soutput}
-\begin{Sinput}
-> print("Bagging")
-\end{Sinput}
+
 \begin{Soutput}
 [1] "Bagging"
 \end{Soutput}
-\begin{Sinput}
-> table(predicted=results$BAGGING_LABEL,actual=container@testing_codes)
-\end{Sinput}
 \begin{Soutput}
          actual
 predicted Leave Remain
    Leave    100     41
    Remain   294    250
 \end{Soutput}
-\begin{Sinput}
-> print("Boosting")
-\end{Sinput}
 \begin{Soutput}
 [1] "Boosting"
 \end{Soutput}
-\begin{Sinput}
-> table(predicted=results$LOGITBOOST_LABEL,actual=container@testing_codes)
-\end{Sinput}
 \begin{Soutput}
          actual
 predicted Leave Remain
    Leave    383    272
    Remain    11     19
 \end{Soutput}
-\begin{Sinput}
-> print("Random Forest")
-\end{Sinput}
 \begin{Soutput}
 [1] "Random Forest"
 \end{Soutput}
-\begin{Sinput}
-> table(predicted=results$FORESTS_LABEL,actual=container@testing_codes)
-\end{Sinput}
 \begin{Soutput}
          actual
 predicted Leave Remain
