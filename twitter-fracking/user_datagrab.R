@@ -9,10 +9,10 @@ name_list <- gsub("@","",name_list)
 
 #set up api authentication
 # Change the next four lines based on your own consumer_key, consume_secret, access_token, and access_secret. 
-consumer_key <- "CiN5HHgYdpSYq490oN9qyTljQ"
-consumer_secret <- "TivQ9pyiHcL7phsldiujKnEgrsyzALVEFelm3FdOyeJ7kCfmYo"
-access_token <- "3817410028-G80OSjBPb442Jgf8GA0XC9trBLPV1g37NV69ywm"
-access_secret <- "FjngOzcmfW109A027z6TXHQzck5j4CBu9RSidHw92qfrv"
+consumer_key <- ""
+consumer_secret <- ""
+access_token <- ""
+access_secret <- ""
 setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 
 
@@ -20,7 +20,7 @@ setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 users_df <- data.frame("id","name","location","followers")
 names(users_df)<- c("id","name","location","followers")
 
-for(i in c(1:length(name_list))) {
+for(i in c(2:length(name_list))) {
 
   test <- getUser(name_list[i])
 
@@ -37,4 +37,5 @@ for(i in c(1:length(name_list))) {
   if (i%%14 == 0){
     Sys.sleep(16*61)
   }
+  print(i)
 }
