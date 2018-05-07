@@ -9,6 +9,7 @@ library(graph)
 library(Rgraphviz)
 library(RTextTools)
 
+
 df <- read.csv("fracking_dataset.csv")
 
 
@@ -69,11 +70,11 @@ all_tweets <- make_tdm(df$X.2)
 
 #function to make wordclouds
 make_wordcloud <- function(freq_tab){
-  wordcloud(words = freq_tab$word, freq = freq_tab$freq, min.freq = 5,max.words=2000, random.order=FALSE, rot.per=0.2,colors=brewer.pal(8, "Dark2"))
-}
+  wordcloud(words = freq_tab$word, freq = freq_tab$freq, min.freq = 5,max.words=200, random.order=FALSE, rot.per=0.2,colors=brewer.pal(8, "Dark2"))
+  }
 
 #make wordclouds from the frequency tables
-make_wordcloud(all_tweets$freq_tab)
+#make_wordcloud(all_tweets$freq_tab)
 
 
 plot_wordcount <- function(freq_tab,title_text){
@@ -96,21 +97,21 @@ plot(all_tweets$tdm, term = findFreqTerms(all_tweets$tdm, lowfreq = 70), corThre
 
 #we already have functions to build the document term matrix above so lets use those
 #transpose the dtm to get word count for each tweet
-dtm<-make_tdm(df$X.2,25)
+dtm<-make_tdm(df$X.2,15)
 dtm<-dtm$dtm
 
 #calculate distances
-m  <- as.matrix(dtm)
-m<-m[sample(nrow(m),size=5000,replace=FALSE),] #sample rows to prevent huge distance matrix
-distMatrix <- dist(m, method="euclidean")
+dtm_m  <- as.matrix(dtm)
+#dtm_m<-dtm_m[sample(nrow(dtm_m),size=10000,replace=FALSE),] #sample rows to prevent huge distance matrix
+distMatrix <- dist(dtm_m, method="euclidean")
 
-num_clusters <- 5
+num_clusters <- 10
 
 #perform hierachical clustering
 hc <- hclust(distMatrix, "ward.D")
 clustering <- cutree(hc, num_clusters)
 
-test<-as.data.frame(cbind(m,clustering))
+test<-as.data.frame(cbind(dtm_m,clustering))
 
 for (i in c(1:num_clusters)){
   tryCatch({
@@ -121,8 +122,13 @@ for (i in c(1:num_clusters)){
   v <- sort(colSums(m), decreasing = TRUE)
   d <- data.frame(word = names(v), freq = v)
   
+  png(paste0("wordcloud",i,".png"))
   make_wordcloud(d)
+  dev.off()
   },
   error = function(err){print("empty cluster")}
   )
+  print(i)
 }
+
+table(test$clustering)
