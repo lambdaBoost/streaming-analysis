@@ -1,7 +1,7 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.4.23)  27 APR 2018 02:59
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.4.23)  4 MAY 2018 11:41
 entering extended mode
-**./submission.tex
-(submission.tex
+**C:/Users/Alex/Documents/GitHub/streaming-analysis/submission.tex
+(C:/Users/Alex/Documents/GitHub/streaming-analysis/submission.tex
 LaTeX2e <2017/01/01> patch level 1
 Babel <3.9r> and hyphenation patterns for 75 language(s) loaded.
 ("C:\Program Files\MiKTeX 2.9\tex\latex\base\article.cls"
@@ -1217,7 +1217,7 @@ File: biblatex.cfg
 LaTeX Warning: File `references.bib' already exists on the system.
                Not generating it from this source.
 
-(C:/PROGRA~1/R/R-34~1.3/share/texmf/tex/latex\Sweave.sty
+("C:\Program Files\R\R-3.4.3\share\texmf\tex\latex\Sweave.sty"
 Package: Sweave 
 
 ("C:\Program Files\MiKTeX 2.9\tex\latex\fancyvrb\fancyvrb.sty"
@@ -1418,14 +1418,7 @@ File: english.lbx 2018/03/04 v3.11 biblatex localization (PK/MW)
 \@quotelevel=\count332
 \@quotereset=\count333
 
-(submission.aux
-
-LaTeX Warning: Label `fig10' multiply defined.
-
-
-LaTeX Warning: Label `fig12' multiply defined.
-
-)
+No file submission.aux.
 \openout1 = `submission.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 52.
@@ -1444,7 +1437,7 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 52.
 LaTeX Font Info:    ... okay on input line 52.
 LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 52.
 LaTeX Font Info:    Try loading font information for TS1+cmr on input line 52.
- ("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
+("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmr.fd"
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    ... okay on input line 52.
@@ -1494,8 +1487,6 @@ Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 52.
 LaTeX Info: Redefining \pageref on input line 52.
 LaTeX Info: Redefining \nameref on input line 52.
-
-(submission.out) (submission.out)
 \@outlinefile=\write7
 \openout7 = `submission.out'.
 
@@ -1509,7 +1500,8 @@ Package biblatex Info: Data encoding 'utf8' specified.
 
 Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'submission.bbl' found.
- (submission.bbl
+
+(C:/Users/Alex/Documents/GitHub/streaming-analysis\submission.bbl
 
 Package biblatex Warning: BibTeX reported the following issues
 (biblatex)                with '6779381':
@@ -1518,191 +1510,41 @@ Package biblatex Warning: BibTeX reported the following issues
 )
 Package biblatex Info: Reference section=0 on input line 52.
 Package biblatex Info: Reference segment=0 on input line 52.
- (submission-concordance.tex)
+ (C:/Users/Alex/Documents/GitHub/streaming-analysis\submission-concordance.tex)
+
 Underfull \hbox (badness 10000) in paragraph at lines 61--65
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 68--70
+LaTeX Warning: Citation 'Liu:2017:ERI:3097983.3098049' on page 1 undefined on i
+nput line 68.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
 
  []
 
 
-LaTeX Warning: Reference `fig1' on page 1 undefined on input line 71.
+LaTeX Warning: Citation 'Haffner:2005:AAC:1080173.1080183' on page 1 undefined 
+on input line 76.
+
+
+LaTeX Warning: Citation '4669733' on page 1 undefined on input line 76.
+
+
+LaTeX Warning: Citation '1550864' on page 1 undefined on input line 76.
+
+
+LaTeX Warning: Citation '5693957' on page 1 undefined on input line 76.
+
+
+LaTeX Warning: Citation '7377112' on page 1 undefined on input line 76.
 
 [1
 
-{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 102--103
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 104--105
-
- []
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 111--113
-
- []
-
-LaTeX Font Info:    Try loading font information for T1+aett on input line 117.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\ae\t1aett.fd"
-File: t1aett.fd 1997/11/16 Font definitions for T1/aett.
-)
-LaTeX Font Info:    Try loading font information for TS1+aett on input line 126
-.
-
-(C:/PROGRA~1/R/R-34~1.3/share/texmf/tex/latex\ts1aett.fd
-File: ts1aett.fd 
-)
-LaTeX Font Info:    Try loading font information for TS1+cmtt on input line 126
-.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\base\ts1cmtt.fd"
-File: ts1cmtt.fd 2014/09/29 v2.5h Standard LaTeX font definitions
-)
-LaTeX Font Info:    Font shape `TS1/aett/m/sl' in size <10> not available
-(Font)              Font shape `TS1/cmtt/m/sl' tried instead on input line 126.
-
-LaTeX Font Info:    Try loading font information for TS1+aer on input line 138.
-
-
-(C:/PROGRA~1/R/R-34~1.3/share/texmf/tex/latex\ts1aer.fd
-File: ts1aer.fd 
-)
-LaTeX Font Info:    Font shape `TS1/aer/m/n' in size <10> not available
-(Font)              Font shape `TS1/cmr/m/n' tried instead on input line 138.
- [3]
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 175.
-
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\lm\ot1lmr.fd"
-File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 175.
-
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\lm\omllmm.fd"
-File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 175
-.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\lm\omslmsy.fd"
-File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 175
-.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\lm\omxlmex.fd"
-File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 175.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 175.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 175.
-LaTeX Font Info:    Try loading font information for U+msa on input line 175.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsa.fd"
-File: umsa.fd 2013/01/14 v3.01 AMS symbols A
-)
-LaTeX Font Info:    Try loading font information for U+msb on input line 175.
-
-("C:\Program Files\MiKTeX 2.9\tex\latex\amsfonts\umsb.fd"
-File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) [4] [5]
-LaTeX Font Info:    Font shape `TS1/aett/m/n' in size <10> not available
-(Font)              Font shape `TS1/cmtt/m/n' tried instead on input line 336.
- [6] [7]
-[8]
-Overfull \hbox (55.31664pt too wide) in paragraph at lines 518--519
-[]\T1/aer/m/n/10 remove the fol-low-ing com-mon words, none of which con-vey an
-y real in-for-ma-tiom: "RT","rt","EU","eu","brexit","euref" 
- []
-
-[9] <submission-029.pdf, id=121, 433.62pt x 433.62pt>
-File: submission-029.pdf Graphic file (type pdf)
- <use submission-029.pdf>
-Package pdftex.def Info: submission-029.pdf used on input line 607.
-(pdftex.def)             Requested size: 375.80542pt x 375.8238pt.
-
-[10] <submission-030.pdf, id=126, 433.62pt x 433.62pt>
-File: submission-030.pdf Graphic file (type pdf)
-
-<use submission-030.pdf>
-Package pdftex.def Info: submission-030.pdf used on input line 621.
-(pdftex.def)             Requested size: 375.80542pt x 375.8238pt.
- [11 <./submission-029.pdf>] [12 <./submission-030.pdf>] <submission-032.pdf, i
-d=147, 433.62pt x 433.62pt>
-File: submission-032.pdf Graphic file (type pdf)
- <use submission-032.pdf>
-Package pdftex.def Info: submission-032.pdf used on input line 654.
-(pdftex.def)             Requested size: 375.80542pt x 375.8238pt.
-
-<submission-033.pdf, id=148, 433.62pt x 433.62pt>
-File: submission-033.pdf Graphic file (type pdf)
- <use submission-033.pdf>
-Package pdftex.def Info: submission-033.pdf used on input line 671.
-(pdftex.def)             Requested size: 375.80542pt x 375.8238pt.
-
-[13 <./submission-032.pdf>] <submission-034.pdf, id=160, 433.62pt x 433.62pt>
-File: submission-034.pdf Graphic file (type pdf)
-
-<use submission-034.pdf>
-Package pdftex.def Info: submission-034.pdf used on input line 688.
-(pdftex.def)             Requested size: 375.80542pt x 375.8238pt.
- [14 <./submission-033.pdf>] [15 <./submission-034.pdf>] [16] [17] [18
-
-]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 833.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 833.
- (submission.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 833.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 833.
-Package rerunfilecheck Info: File `submission.out' has not changed.
-(rerunfilecheck)             Checksum: D7883A7F470BEF838AD1DE0F0E794599;899.
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: There were multiply-defined labels.
-
-Package logreq Info: Writing requests to 'submission.run.xml'.
-\openout1 = `submission.run.xml'.
-
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 833.
- ) 
-Here is how much of TeX's memory you used:
- 26364 strings out of 493333
- 480008 string characters out of 3139197
- 989631 words of memory out of 3000000
- 29344 multiletter control sequences out of 15000+200000
- 45003 words of font info for 81 fonts, out of 3000000 for 9000
- 1141 hyphenation exceptions out of 8191
- 62i,8n,92p,1157b,1281s stack positions out of 5000i,500n,10000p,200000b,50000s
- <C:\Users\Alex\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec\dpi600\t
-ctt1000.pk> <C:\Users\Alex\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jknappen\ec
-\dpi600\tcrm1000.pk> <C:\Users\Alex\AppData\Local\MiKTeX\2.9\fonts\pk\ljfour\jk
-nappen\ec\dpi600\tcst1000.pk><C:/Program Files/MiKTeX 2.9/fonts/type1/public/am
-sfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/c
-m/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmcsc1
-0.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:
-/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Program 
-Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr17.pfb><C:/Program Files/MiK
-TeX 2.9/fonts/type1/public/amsfonts/cm/cmsltt10.pfb><C:/Program Files/MiKTeX 2.
-9/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Program Files/MiKTeX 2.9/fonts/
-type1/public/amsfonts/cm/cmti12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/pu
-blic/amsfonts/cm/cmtt10.pfb>
-Output written on submission.pdf (18 pages, 239628 bytes).
-PDF statistics:
- 253 PDF objects out of 1000 (max. 8388607)
- 41 named destinations out of 1000 (max. 500000)
- 162 words of extra memory for PDF output out of 10000 (max. 10000000)
-
+{C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map
+!pdfTeX error: pdflatex.EXE (file C:/ProgramData/MiKTeX/2.9/pdftex/config/pdfte
+x.map): buffer overflow at file C:\Jenkins\jobs\miktex-2.9\workspace\source\Pro
+grams\TeXAndFriends\pdftex\source\mapfile.c, line 418
+ ==> Fatal error occurred, no output PDF file produced!
