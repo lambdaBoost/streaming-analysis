@@ -20,7 +20,7 @@ setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
 users_df <- data.frame("id","name","location","followers")
 names(users_df)<- c("id","name","location","followers")
 
-for(i in c(181:length(name_list))) {
+for(i in c(187:length(name_list))) {
   
   tryCatch({
   test <- getUser(name_list[i])
@@ -28,16 +28,20 @@ for(i in c(181:length(name_list))) {
   user_id <- test$id
   user_name <- test$name
   user_location <- test$location
-
   user_followers <- paste(test$getFollowerIDs(),collapse=",")
+  
+  if(length(user_followers > 1)){
   
   user_vec <- c(user_id , user_name , user_location , user_followers)
 
   user_row <- data.frame(id=user_id , name=user_name , location=user_location , followers=user_followers)
   users_df <- bind_rows(users_df,user_row)
+  }else{
+    print("API calls exceeded")
+  }
   },
   
-  error=function(){print('api error')}
+  error=function(err){print('api error')}
   )#end trycatch
  
   if (i%%6 == 0){
